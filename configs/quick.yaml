@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# configs/quick.yaml — a deliberately tiny configuration.
+#
+# Purpose: prove the whole pipeline runs end to end in a couple of minutes on
+# any laptop, and give the automated tests and the CI runners something fast
+# to execute. It uses the synthetic phantom generator, so no download is
+# needed. Numbers here are NOT meant to give good models — they are meant to
+# give *fast* ones.
+# ---------------------------------------------------------------------------
+
+project:
+  name: segaudit
+  run_label: quick
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  outputs: outputs/quick          # kept apart from real runs
+  models: models/quick
+
+data:
+  source: synthetic_phantom
+  use_synthetic: true
+  synthetic:
+    n_cases: 12
+    shape: [32, 40, 32]
+    voxel_size_mm: [1.0, 1.0, 1.0]
+
+reproducibility:
+  seed: 7
+
+storage:
+  backend: local_parquet
+
+training:
+  epochs: 2
+  batch_size: 2
+  learning_rate: 0.001
+
+uncertainty:
+  tta_passes: 2
+  mc_dropout_passes: 4
+
+quality_control:
+  failure_dice_threshold: 0.80
+  review_budget_fraction: 0.25

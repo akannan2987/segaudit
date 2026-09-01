@@ -1,0 +1,59 @@
+# ---------------------------------------------------------------------------
+# .gitignore — files Git must never track.
+# The repository holds code and documentation; data and outputs are rebuilt
+# by running the pipeline (that is what reproducibility means).
+# ---------------------------------------------------------------------------
+
+# --- data, outputs, models (regenerated; large; sometimes sensitive) -------
+data/raw/*
+data/processed/*
+outputs/*
+models/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!outputs/.gitkeep
+!models/.gitkeep
+*.nii
+*.nii.gz
+*.dcm
+*.parquet
+*.duckdb
+*.db
+*.pt
+*.pth
+*.ckpt
+*.tar
+*.zip
+
+# --- secrets -----------------------------------------------------------------
+.env
+.env.*
+secrets.yaml
+secrets.yml
+credentials.json
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- virtual environments -----------------------------------------------------
+.venv/
+venv/
+env/
+
+# --- editors and operating systems -------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- notebooks (checkpoints only; notebooks themselves are fine) --------------
+.ipynb_checkpoints/

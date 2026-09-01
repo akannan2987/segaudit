@@ -1,0 +1,98 @@
+# ---------------------------------------------------------------------------
+# pyproject.toml — the identity card of the SegAudit Python package.
+#
+# Every modern Python project has one of these. It tells `pip` (the package
+# installer) what this project is called, which version it is, which other
+# packages it needs, and how the development tools (tests, linter) should behave.
+# Think of it as the label on a sealed toolbox: name, contents, handling notes.
+# ---------------------------------------------------------------------------
+
+[build-system]
+# How pip should turn this folder into an installable package.
+# setuptools is the long-standing default; nothing exotic is needed.
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "segaudit"
+version = "0.1.0"
+description = "Quality control and triage for medical image segmentation: know which segmentations you can trust."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Abhilash Kannan" }]
+requires-python = ">=3.10"
+keywords = ["medical-imaging", "segmentation", "quality-control", "uncertainty", "MONAI", "NIfTI"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+# Runtime dependencies. Lower bounds only here; exact pins live in
+# requirements.txt so the two files have different jobs:
+#   pyproject.toml  -> "what this package is compatible with"
+#   requirements.txt -> "the exact versions I verified today"
+dependencies = [
+    "numpy>=1.26,<3",
+    "pandas>=2.2",
+    "pyarrow>=15",
+    "duckdb>=1.1",
+    "PyYAML>=6",
+    "nibabel>=5.2",
+    "SimpleITK>=2.3",
+    "scikit-image>=0.22",
+    "scikit-learn>=1.4",
+    "pydicom>=2.4",
+    "torch>=2.2.2",
+    "monai>=1.4",
+]
+
+[project.optional-dependencies]
+# `pip install -e ".[dev]"` adds the tools used only while developing.
+dev = [
+    "pytest>=8",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+# Creates a command called `segaudit` on the command line that runs
+# the `main` function inside src/segaudit/cli.py.
+segaudit = "segaudit.cli:main"
+
+[project.urls]
+Repository = "https://github.com/akannan2987/segaudit"
+Documentation = "https://github.com/akannan2987/segaudit/tree/master/docs"
+
+# --- Where the code lives ---------------------------------------------------
+# The "src layout": code sits in src/segaudit, not in the repository root.
+# Why: it forces you to *install* the package to import it, which is exactly
+# what a stranger cloning the repo will do — so tests can't accidentally pass
+# only because you happen to be standing in the right folder.
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# --- pytest: the test runner ------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: tests that train a model or touch large data (deselect with -m 'not slow')",
+]
+
+# --- ruff: the linter -------------------------------------------------------
+# A linter reads code and points out mistakes and style problems before the
+# code ever runs — like a spell-checker for programs.
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]   # errors, pyflakes, import order, bugbear, modernise
+ignore = ["E501"]                      # long lines: allowed in docstrings and comments

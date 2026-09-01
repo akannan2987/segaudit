@@ -1,0 +1,71 @@
+# ---------------------------------------------------------------------------
+# Continuous integration (CI).
+#
+# Every time code is pushed, GitHub rents three fresh machines — one Windows,
+# one macOS, one Linux — installs SegAudit exactly the way the setup guides
+# say to, runs the linter and the tests, and reports green or red. It is the
+# proof behind the "runs on Windows | macOS | Linux" claim in the README.
+#
+# Everyday analogy: a driving test taken on three different cars every time
+# you change anything about how you drive.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: [master, beta, develop]
+    tags: ["v*"]
+  pull_request:
+    branches: [master, beta, develop]
+
+concurrency:
+  # If you push twice quickly, cancel the older run — saves minutes.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false            # let all three finish so you see every failure
+      matrix:
+        # macos-latest is Apple silicon. The Intel-Mac dependency lane is
+        # verified on a physical machine; GitHub no longer offers Intel runners.
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11"]
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-torch-cpu.txt
+            requirements-dev.txt
+
+      - name: Install PyTorch (CPU build) first
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements-torch-cpu.txt
+
+      - name: Install the rest of the pinned stack
+        run: python -m pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Install SegAudit itself (editable, no dependency re-resolution)
+        run: python -m pip install -e . --no-deps
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Environment check
+        run: segaudit check-env
+
+      - name: Tests
+        run: pytest
+
+      - name: Public-safety check
+        run: python scripts/check_public_safe.py

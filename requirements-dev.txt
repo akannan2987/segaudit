@@ -1,0 +1,8 @@
+# ---------------------------------------------------------------------------
+# requirements-dev.txt — tools needed only to *develop* SegAudit, not to run it.
+#   pytest : runs the automated tests in tests/
+#   ruff   : the linter — flags mistakes and untidy code before it runs
+# Pins verified: 2026-09-01.
+# ---------------------------------------------------------------------------
+pytest==9.1.1
+ruff==0.16.5

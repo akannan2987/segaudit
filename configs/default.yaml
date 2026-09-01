@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------------------
+# configs/default.yaml — the settings SegAudit runs with unless told otherwise.
+#
+# Rule of the project: no path, seed, threshold or model size is ever written
+# into Python code. It lives here, and the code reads it. That is what makes
+# the same pipeline runnable on a laptop, a shared server, or (later) a cloud
+# service by swapping one file instead of editing code.
+#
+# Paths below are RELATIVE TO THE REPOSITORY ROOT (the folder containing
+# `configs/`). The loader in src/segaudit/config.py turns them into absolute
+# paths for whatever operating system you are on.
+# ---------------------------------------------------------------------------
+
+project:
+  name: segaudit
+  # A run label appears in every output table so results from different
+  # configurations never get mixed up.
+  run_label: default
+
+paths:
+  data_raw: data/raw              # untouched downloads — never edited by code
+  data_processed: data/processed  # resampled, normalised volumes (Phase 2)
+  outputs: outputs                # tables, figures, reports
+  models: models                  # trained weights (Phase 3)
+
+data:
+  # The public dataset used for the core project. Downloaded in Phase 1.
+  source: msd_task04_hippocampus
+  # Set to true to run entirely on the built-in synthetic phantom generator
+  # (no download; used by the tests and the first walkthrough).
+  use_synthetic: false
+  synthetic:
+    n_cases: 40
+    shape: [40, 56, 40]           # voxels per axis — same ballpark as the real task
+    voxel_size_mm: [1.0, 1.0, 1.0]
+
+reproducibility:
+  # One seed controls every source of randomness (splits, augmentation,
+  # model initialisation, dropout sampling). Same seed + same code = same result.
+  seed: 20260901
+
+storage:
+  # `local_parquet`: tables are written as Parquet files under paths.outputs
+  # and queried with DuckDB. Other backends can be added without touching the
+  # pipeline (see src/segaudit/storage.py).
+  backend: local_parquet
+
+# Sections below are placeholders for later phases. They are listed now so the
+# shape of the configuration is visible from day one; values will be filled in
+# when each phase lands and documented in its tutorial.
+training:                          # Phase 3
+  epochs: 30
+  batch_size: 4
+  learning_rate: 0.001
+
+uncertainty:                       # Phase 5
+  tta_passes: 8
+  mc_dropout_passes: 16
+
+quality_control:                   # Phase 6
+  failure_dice_threshold: 0.80
+  review_budget_fraction: 0.10

@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# requirements.txt — the exact package versions SegAudit was verified with,
+# resolved for Python 3.11 on Windows (x86_64), Linux (x86_64), macOS on
+# Apple silicon (arm64) and macOS on Intel (x86_64).
+#
+# Install order matters (explained in docs/01-setup-*.md):
+#   1. pip install -r requirements-torch-cpu.txt   <- PyTorch from the CPU index
+#   2. pip install -r requirements.txt             <- everything else (this file)
+#   3. pip install -e . --no-deps                  <- SegAudit itself
+#
+# Why torch is not in this file: on Linux, plain `pip install torch` downloads
+# the multi-gigabyte GPU build. The separate file points pip at the CPU build.
+#
+# Lines ending in ";  <condition>" carry an environment marker: pip applies the
+# line only on machines where the condition is true. Only three packages need
+# this — numpy and monai (below) and torch (in its own file) — because PyTorch
+# stopped building for Intel Macs at 2.2.2, and the last MONAI that supports
+# torch 2.2 (1.4.0) requires NumPy 1.x. Everything else is identical everywhere.
+#
+# Pins verified: 2026-09-01. Re-verify with `pip index versions <name>`.
+# ---------------------------------------------------------------------------
+
+# Core numerics and tables
+numpy==2.4.6;   sys_platform != "darwin" or platform_machine != "x86_64"
+numpy==1.26.4;  sys_platform == "darwin" and platform_machine == "x86_64"
+pandas==3.0.5
+pyarrow==25.0.1
+
+# Storage and query layer (single-file analytics database, reads Parquet directly)
+duckdb==1.5.5
+
+# Configuration
+PyYAML==6.0.3
+
+# Medical image I/O and processing
+nibabel==5.4.2
+SimpleITK==2.5.6
+pydicom==3.0.2
+scikit-image==0.26.0
+
+# Classical machine learning (quality-control classifier, Phase 6)
+scikit-learn==1.9.0
+
+# Deep learning for medical imaging (Phase 3 onward). Requires torch first.
+monai==1.6.0;   sys_platform != "darwin" or platform_machine != "x86_64"
+monai==1.4.0;   sys_platform == "darwin" and platform_machine == "x86_64"
