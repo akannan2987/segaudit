@@ -12,6 +12,7 @@ stays instant even when PyTorch is not installed.
 from __future__ import annotations
 
 import importlib
+import importlib.metadata
 import os
 import platform
 import sys
@@ -53,7 +54,17 @@ class CheckResult:
     detail: str = ""
 
 
-def _version_of(module: object) -> str:
+def _version_of(module: object, dist: str) -> str:
+    """Version string for a package.
+
+    Ask the installed-package metadata first (works for every package pip
+    installed, including ones like ruff that expose no ``__version__``);
+    fall back to the module's own attributes.
+    """
+    try:
+        return importlib.metadata.version(dist)
+    except importlib.metadata.PackageNotFoundError:
+        pass
     for attr in ("__version__", "version", "VERSION"):
         value = getattr(module, attr, None)
         if value is not None:
@@ -66,7 +77,7 @@ def check_dependency(dep: Dependency) -> CheckResult:
         module = importlib.import_module(dep.module)
     except Exception as exc:  # ImportError, but also OSError for broken binaries
         return CheckResult(dep, False, "-", f"{type(exc).__name__}: {exc}")
-    return CheckResult(dep, True, _version_of(module))
+    return CheckResult(dep, True, _version_of(module, dep.dist))
 
 
 def system_summary() -> dict[str, str]:
