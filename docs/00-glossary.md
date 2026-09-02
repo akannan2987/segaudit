@@ -29,6 +29,8 @@
 
 ## 1. The body and the scan
 
+![A 3D scan is a volume, sliced like a loaf; each slice is a grid of tiny cubes called voxels](img/fig_voxel_loaf.svg)
+
 **Anterior / posterior.** Front / back. The hippocampus in this project is outlined as two parts, the front (anterior) and the back (posterior). *Bow and stern of a boat.*
 
 **Hippocampus.** A small, curled structure deep in each half of the brain, about the size of your little finger, central to forming memories. It shrinks in several neurological and psychiatric conditions, so its volume is a measurement clinicians care about. *The brain's filing clerk for new memories.*
@@ -86,6 +88,8 @@
 **Connected component.** A group of voxels in a mask that touch each other. A hippocampus mask should be one or two blobs; ten blobs means the model was confused. *Islands on a map: one big island is expected, an archipelago is suspicious.*
 
 **Dice score (Dice coefficient).** The standard overlap score between two masks: twice the shared volume divided by the sum of both volumes. 1.0 = identical, 0.0 = no overlap. *If two people each colour in a shape, Dice asks: how much of what they coloured is the same?*
+
+![Dice measures the overlap of two outlines: twice the shared area over the sum of both areas, from 1.0 (identical) to 0.0 (no overlap)](img/fig_dice_overlap.svg)
 
 **Failure case.** A scan on which the model's segmentation is badly wrong (in this project, Dice below a stated threshold). The whole point of SegAudit is to find these without a reference.
 

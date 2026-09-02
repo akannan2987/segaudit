@@ -64,6 +64,8 @@ hippocampus, a small curled structure deep in the brain that handles memory,
 shrinks in several neurological diseases, so its volume is a biomarker people
 genuinely care about.
 
+![A 3D scan is a volume, sliced like a loaf; each slice is a grid of tiny cubes called voxels](docs/img/fig_voxel_loaf.svg)
+
 Drawing those outlines by hand takes an expert about an hour per scan. A
 **segmentation model** — a program trained on hundreds of hand-drawn examples —
 does it in seconds. That is the good news.
@@ -76,6 +78,8 @@ is a perfect match, 0.0 is no overlap at all). A typical report says *mean Dice
 0.91*. That average hides the shape of the distribution: most cases are fine,
 and a handful are badly wrong — the model latched onto the wrong structure, or
 left half the hippocampus out.
+
+![Dot plot of per-case Dice scores: most cluster near the mean of 0.91, but a few red failures sit far left — the cases the average hides](docs/img/fig_mean_hides_failures.svg)
 
 In real use there is no expert outline to compare against — that is the whole
 point of automating — so Dice cannot be computed on a new scan at all. The team

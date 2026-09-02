@@ -14,6 +14,13 @@ requirements-lock-linux-x86_64-py3.11.txt
 
 Each file's header records when, on what, and how to rebuild from it.
 
+```mermaid
+flowchart LR
+    REQ["requirements.txt<br/>the packages we chose"] -->|pip resolves| ENV["your working .venv<br/>+ everything they pulled in"]
+    ENV -->|freeze_lock.py| LOCK["locks/…-py3.11.txt<br/>exact snapshot, platform-named"]
+    LOCK -->|same platform, later| ENV2["identical rebuilt venv"]
+```
+
 ## Lock file vs requirements.txt — when to use which
 
 | | `requirements.txt` (+ `requirements-torch-cpu.txt`) | a file in `locks/` |

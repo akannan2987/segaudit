@@ -43,6 +43,23 @@ Almost every confusing software conversation becomes clear once you know these t
 
 **Storage — "the pantry."** Where finished things are put so they can be found again quickly and precisely. In SegAudit, storage is a folder of **Parquet** tables (a compact, typed table format) that can be questioned in **SQL** through **DuckDB** — think of SQL as a very polite, very literal way of saying "bring me the ten cases with the lowest quality score."
 
+The three words, and the counter between them, as one picture:
+
+```mermaid
+flowchart LR
+    subgraph K["backend — the kitchen"]
+        P["pipeline code<br/>src/segaudit/"]
+    end
+    P --- API["api.py<br/>the counter"]
+    API -.-> D1["command line"]
+    API -.-> D2["review app"]
+    API -.-> D3["agent tools"]
+    P --> S[("storage — the pantry<br/>Parquet + SQL")]
+    S -.-> D1
+    S -.-> D2
+    S -.-> D3
+```
+
 One more, because it appears constantly:
 
 **API — "the counter between kitchen and dining room."** The fixed set of things you can ask the kitchen for. In SegAudit it is one Python file, `src/segaudit/api.py`. The command line, the review app and (later) the agent tools all order through that counter. None of them cook.
@@ -100,6 +117,15 @@ flowchart TD
 ## 5. The five design rules
 
 Each rule is a sentence, an analogy, and what it buys.
+
+```mermaid
+flowchart TD
+    R1["1 · one-way data flow"] --> BUY["what they buy together:<br/>delete everything but data/raw/ + code,<br/>rerun, get identical results —<br/>and add new doors without rewrites"]
+    R2["2 · API-first"] --> BUY
+    R3["3 · config, not code"] --> BUY
+    R4["4 · storage via interface"] --> BUY
+    R5["5 · seeded randomness"] --> BUY
+```
 
 **1. Data flows one way, and no step edits its own input.** Top to bottom in the diagram; `raw/` feeds `processed/`, never the reverse. *A recipe where you never put chopped onions back in the onion bag.* **Buys:** delete everything except `data/raw/` and the code, rerun, get identical results. That property — reproducibility — is the baseline expectation in regulated analytics.
 

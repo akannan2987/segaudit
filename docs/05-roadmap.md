@@ -12,6 +12,19 @@
 
 ## 1. The build plan (versions 0.2 → 1.0)
 
+```mermaid
+timeline
+    title The road from foundation to 1.0
+    v0.1 : foundation (released)
+    v0.2 : data : preprocessing + baseline : model
+    v0.3 : validation : uncertainty
+    v0.4 : quality control + triage
+    v0.5 : repeatability (+R) : biomarkers (+R)
+    v0.6 : review app
+    v0.7 : agent tools
+    v1.0 : container + release
+```
+
 One phase per version step; each lands with its tutorial in `docs/04-phase-tutorials/` and a changelog entry. This is the same table as the README build log, with the *approach* spelled out.
 
 | Ver. | Phase | Approach, in one honest paragraph | Effort |

@@ -224,6 +224,18 @@ $ segaudit init -c configs/quick.yaml
 All folders already exist — nothing to do.
 ```
 
+The six hops, drawn:
+
+```mermaid
+flowchart LR
+    A["segaudit init<br/>(what you typed)"] --> B["pyproject.toml<br/>[project.scripts]"]
+    B --> C["cli.main<br/>build_parser"]
+    C --> D["cmd_init"]
+    D --> E["api.load →<br/>config.load_config"]
+    E --> F["api.initialise_workspace"]
+    F --> G["Path.mkdir<br/>(folders appear)"]
+```
+
 Follow it in the code: `pyproject.toml` maps `segaudit` → `cli.main` → `build_parser` reads `init` and `-c` → `cmd_init` → `api.load` → `config.load_config` → `api.initialise_workspace` → `Path.mkdir`. Six hops, each one line to read. The second run is *idempotent* — doing it again changes nothing and says so — which every pipeline command in later phases will also be.
 
 **Exercise 6b — the environment check is also a door.** `segaudit check-env` calls `envcheck.run_checks` and prints `envcheck.format_report`. Open `envcheck.py` and find the `DEPENDENCIES` tuple: it is the single list that says which phase first needs each package. When Phase 10 adds the MCP library, it is added there, and the check knows.

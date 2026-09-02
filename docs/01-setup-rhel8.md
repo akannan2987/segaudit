@@ -38,6 +38,22 @@ You will install four things (an editor is optional on a server). Here is what e
 | **Python 3.11** | The programming language SegAudit is written in | The language the recipe is written in |
 | **A virtual environment** | A private, sealed set of Python packages for this project only | A separate toolbox per project, so tools never go missing into another project |
 
+
+The whole journey of this page, as one picture:
+
+```mermaid
+flowchart LR
+    A["Install the tools<br/>Git · Python 3.11 · editor"] --> B["Get the project<br/>clone or open the folder"]
+    B --> C["Create + activate<br/>the virtual environment"]
+    C --> D["Install packages<br/>1 torch (CPU) → 2 the rest → 3 segaudit"]
+    D --> E["Prove it works<br/>check-env · pytest · ruff"]
+    E --> F(["Done — never again on this machine.<br/>Every later session: activate → work → check → push"])
+```
+
+And the single most important idea on this page, drawn:
+
+![A virtual environment is a sealed toolbox per project: two projects on one computer keep different package versions without clashing](img/fig_venv_toolboxes.svg)
+
 Nothing you install here changes the system Python or anything other users depend on. Everything project-specific lives inside one folder in your home directory.
 
 **A convention for this page.** Lines starting with `$` are commands you type (don't type the `$`). Lines without it are what the computer prints back. `<you>` means "your own username" — never type the angle brackets.

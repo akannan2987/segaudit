@@ -164,6 +164,16 @@ end; patch versions for fixes and documentation.
 - `docs/HANDBOOK.md` is the single guided entry point and is updated **in the
   same commit** as any change that alters a status, adds a document, or changes
   a step. Before every push, ask: does the Handbook still tell the truth?
+- **Illustrations.** Concepts that are spatial, structural or sequential get a
+  picture, not just prose. Prefer **Mermaid** diagrams (text-based: they render
+  on GitHub, diff like code, and never go stale in a binary blob); use **SVG**
+  files in `docs/img/` (named `fig_*.svg`, white background, an `aria-label`
+  describing the content) for figures Mermaid cannot draw. Every image is
+  embedded with meaningful alt text, and every file in `docs/img/` is
+  referenced by at least one document. Screenshots enter only from Phase 9
+  (the review app) onward. Truly interactive figures are out of scope for
+  repository pages — the interactive layer of this project is the review app
+  itself.
 - Honesty over polish: limitations, synthetic data and known bumps are stated
   where a reader would otherwise be misled.
 

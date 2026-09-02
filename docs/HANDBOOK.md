@@ -22,6 +22,17 @@
 | [5. From pipeline to product](#stage-5--from-pipeline-to-product) | The evaluated path to a hosted, usable product | reading: 1 h | ✅ both documents live |
 | [6. Contribute and extend](#stage-6--contribute-and-extend) | You can improve SegAudit and keep its promises intact | ongoing | ✅ rules written |
 
+```mermaid
+flowchart LR
+    S0["0 · Orient<br/>the problem + the words"] --> S1["1 · Set up<br/>once per machine"]
+    S1 --> S2["2 · Understand<br/>architecture + Git"]
+    S2 --> S3["3 · Build<br/>phases 1–11, one per session"]
+    S3 --> S4["4 · Release<br/>tag + changelog"]
+    S4 --> S3
+    S4 --> S5["5 · Product path<br/>evaluated, not accumulated"]
+    S5 --> S6["6 · Contribute<br/>and extend"]
+```
+
 If you only have **10 minutes**: read the README top section and [What is a segmentation?](../README.md#what-is-a-segmentation-start-here). **One hour**: add Stage 0 in full. **One day**: through Stage 2, ending with the hands-on exercises. After that, Stage 3 is one phase per session.
 
 ---

@@ -8,7 +8,14 @@ documentation improvement.
 
 ## [Unreleased]
 
-Nothing yet. Next up: Phase 1 (data layer) → v0.2.0 — see
+### Added
+- Illustrations across the documentation: SVG figures (voxel/volume, Dice
+  overlap, the mean-hides-failures problem, virtual-environment toolboxes) in
+  `docs/img/`, plus Mermaid diagrams in the setup guides, architecture, Git
+  workflow, Phase 0 tutorial, Handbook, roadmap and lock-file guide; an
+  illustration standard added to `CONTRIBUTING.md`.
+
+Next up: Phase 1 (data layer) → v0.2.0 — see
 [`docs/05-roadmap.md`](docs/05-roadmap.md).
 
 ## [0.1.0] — 2026-09-02

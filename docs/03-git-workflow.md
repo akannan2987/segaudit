@@ -96,6 +96,22 @@ git pull --ff-only origin master
 git switch develop
 ```
 
+The same block as a picture — who talks to whom, in order:
+
+```mermaid
+sequenceDiagram
+    participant D as local develop
+    participant G as GitHub (origin)
+    participant M as local master
+    Note over D: ruff · pytest · safety script all green
+    D->>D: git add -A, then git commit
+    D->>G: git push origin develop develop:beta develop:master
+    Note over G: remote develop, beta and master<br/>fast-forward to the same commit
+    M->>G: git pull --ff-only origin master
+    G-->>M: fast-forward — local master in step
+    Note over D: git switch develop — back to work
+```
+
 What each line does, and what you should see:
 
 **`git switch develop`** — make sure you are on the working branch. If you already are, Git says `Already on 'develop'`. If you had uncommitted changes, they come with you (Git lists them as `M`), which is fine.
