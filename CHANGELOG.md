@@ -19,7 +19,9 @@ documentation improvement.
 - Repository documentation: README, contribution guide (branch model and release
   flow), licence, this changelog, glossary, and setup guides for Windows, macOS
   and RHEL 8 written from real sessions with expected output and troubleshooting,
-  architecture walkthrough, Git workflow guide, and the Phase 0 tutorial.
+  architecture walkthrough, Git workflow guide, the Phase 0 tutorial, the
+  Handbook (single living day-0-to-product walkthrough), and per-platform
+  environment lock files (`locks/`, `scripts/freeze_lock.py`).
 
 ### Notes
 - Dependency pins are resolved for Python 3.11 on Windows, Linux, Apple-silicon

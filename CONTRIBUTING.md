@@ -161,6 +161,9 @@ end; patch versions for fixes and documentation.
   the glossary, that is a documentation bug; please report it.
 - Every file in the repository is referenced and explained somewhere in the
   docs (the README's repository map is the index). No undocumented magic.
+- `docs/HANDBOOK.md` is the single guided entry point and is updated **in the
+  same commit** as any change that alters a status, adds a document, or changes
+  a step. Before every push, ask: does the Handbook still tell the truth?
 - Honesty over polish: limitations, synthetic data and known bumps are stated
   where a reader would otherwise be misled.
 

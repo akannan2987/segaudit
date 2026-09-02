@@ -23,6 +23,10 @@ Built from scratch, in public, fully explained.**
 > Every term used anywhere in this repo — medical, statistical or technical — is
 > defined in plain language in [`docs/00-glossary.md`](docs/00-glossary.md). If a
 > word isn't there, that's a documentation bug.
+>
+> **New here? Start with [`docs/HANDBOOK.md`](docs/HANDBOOK.md)** — the one living
+> document that walks the whole journey in order, from day 0 to the finished
+> product, linking to everything else at the moment you need it.
 
 ---
 
@@ -183,6 +187,7 @@ number, the figure, and the one-paragraph plain-language meaning.*
 Read these in sequence. Each states its prerequisites, its learning goal, every
 command with its expected output, and a checkpoint that tells you it worked.
 
+0. [`docs/HANDBOOK.md`](docs/HANDBOOK.md) — **start here**: the living day-0-to-product walkthrough; everything below is linked from it in order, with why.
 1. [`docs/00-glossary.md`](docs/00-glossary.md) — every term, in plain language, with an everyday analogy. Keep it open.
 2. Set up your workshop from a blank machine — pick your operating system:
    [`docs/01-setup-windows.md`](docs/01-setup-windows.md) ·
@@ -267,7 +272,10 @@ segaudit/
 │   ├── test_storage.py           round trips, ledger appends, SQL queries, name safety
 │   └── test_cli.py               every command runs with the right exit code
 ├── scripts/
-│   └── check_public_safe.py      pre-push guard: no secrets, data files or personal paths
+│   ├── check_public_safe.py      pre-push guard: no secrets, data files or personal paths
+│   └── freeze_lock.py            record the exact environment into locks/ (see locks/README.md)
+├── locks/
+│   └── README.md                 per-platform exact environment snapshots — what and why
 ├── data/
 │   ├── README.md                 what lives in raw/ and processed/, and why it isn't committed
 │   ├── raw/                      untouched downloads and phantoms (git-ignored)
@@ -275,6 +283,7 @@ segaudit/
 ├── outputs/                      tables, figures, reports (git-ignored)
 ├── models/                       trained weights (git-ignored)
 └── docs/
+    ├── HANDBOOK.md               START HERE — the living day-0-to-product walkthrough
     ├── 00-glossary.md            every term with an everyday analogy
     ├── 01-setup-windows.md       blank machine → working environment (PowerShell)
     ├── 01-setup-macos.md         same, for macOS (Terminal)
