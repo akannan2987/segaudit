@@ -52,6 +52,25 @@ segaudit check-env
 The lock's first line points pip at the PyTorch CPU index as well, so torch
 resolves in the same step.
 
+## After a successful rebuild: verify, then clean up
+
+The rebuilt environment is a *drill*, not a second workshop. Once
+`segaudit check-env` in it reports the same versions as the lock file, the
+drill has proven its point — the environment is rebuildable — and keeping two
+environments around only invites confusion about which one you are in. So:
+
+```bash
+segaudit check-env          # versions must match the lock's contents
+deactivate                  # leave the drill environment
+rm -rf .venv-exact          # remove it completely   (Windows: Remove-Item -Recurse -Force .venv-exact)
+source .venv/bin/activate   # back to the real one   (Windows: .\.venv\Scripts\Activate.ps1)
+segaudit check-env          # confirm you are back: "You are ready."
+```
+
+`.gitignore` ignores any folder matching `.venv*`, so a forgotten drill
+environment can never be committed — but do delete it anyway; disk space and
+clarity are both worth having.
+
 ## Honesty notes
 
 - A lock from one platform must not be installed on another; the file name
