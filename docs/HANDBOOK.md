@@ -18,8 +18,8 @@
 | [1. Set up your machine](#stage-1--set-up-your-machine) | Every tool installed, once, with proof it works | ~45 min | ✅ |
 | [2. Understand the design](#stage-2--understand-the-design) | You can explain the architecture and use Git confidently | 1–2 h | ✅ |
 | [3. Build the pipeline, phase by phase](#stage-3--build-the-pipeline-phase-by-phase) | The working system, built and understood step by step | ~8–10 weekends total | 🔨 Phase 0 ✅, Phases 1–11 🔜 |
-| [4. Releases](#stage-4--releases) | Versioned, tagged, changelogged milestones | minutes per release | 🔨 v0.1.0 in preparation |
-| [5. From pipeline to product](#stage-5--from-pipeline-to-product) | The evaluated path to a hosted, usable product | reading: 1 h | 🔜 documents land with Phase 0c |
+| [4. Releases](#stage-4--releases) | Versioned, tagged, changelogged milestones | minutes per release | ✅ v0.1.0 released |
+| [5. From pipeline to product](#stage-5--from-pipeline-to-product) | The evaluated path to a hosted, usable product | reading: 1 h | ✅ both documents live |
 | [6. Contribute and extend](#stage-6--contribute-and-extend) | You can improve SegAudit and keep its promises intact | ongoing | ✅ rules written |
 
 If you only have **10 minutes**: read the README top section and [What is a segmentation?](../README.md#what-is-a-segmentation-start-here). **One hour**: add Stage 0 in full. **One day**: through Stage 2, ending with the hands-on exercises. After that, Stage 3 is one phase per session.
@@ -95,15 +95,16 @@ Optional, arrives with Phase 7: `01b-setup-r.md` — R, RStudio and `renv` for t
 
 - The release procedure (changelog → version bump in two files → checks → tag → push with `--tags`) is in [`../CONTRIBUTING.md`](../CONTRIBUTING.md#5-release-flow), with the same steps summarised in [`03-git-workflow.md`](03-git-workflow.md#6-releases-and-tags).
 - What changed in every version: [`../CHANGELOG.md`](../CHANGELOG.md).
-- Current release: **v0.1.0 (foundation) — in preparation**; tagged as part of Phase 0c. 🔨
+- Current release: **v0.1.0 (foundation)** — tagged 2026-09-02; see the
+  [changelog entry](../CHANGELOG.md#010--2026-09-02). ✅
 
 ## Stage 5 · From pipeline to product
 
 **Goal:** understand — before building any of it — what it would take to turn SegAudit into an industrialised, hosted, usable product, and in what order.
 **Why a written evaluation instead of just adding tools:** every technology is a cost (setup, maintenance, complexity). The rule of this repository is *justify, don't accumulate*: each option gets a verdict — Required now / Recommended later / Optional / Not needed — **and the trigger that would change it**.
 
-- [`05-roadmap.md`](05-roadmap.md) — the near roadmap: everything extracted-but-not-yet-built, each with its planned approach and trigger. 🔜 lands with Phase 0c.
-- [`06-product-and-technology-roadmap.md`](06-product-and-technology-roadmap.md) — the product evaluation: web front end, data platform, AI components, cloud and operations, regulatory constraints of medical data, discoverability, pricing — every term explained for a newcomer, plus the end-to-end product pipeline and which pieces of today's MVP already form part of it. 🔜 lands with Phase 0c.
+- [`05-roadmap.md`](05-roadmap.md) — the near roadmap: the full build plan with each phase's approach spelled out, plus every deferred feature with its planned approach, trigger and effort. ✅
+- [`06-product-and-technology-roadmap.md`](06-product-and-technology-roadmap.md) — the product evaluation: web front end, data platform, AI components, cloud and operations, regulatory constraints of medical data, discoverability, pricing — every term explained for a newcomer with an everyday analogy, every option given a verdict and a trigger, plus the end-to-end product pipeline and which pieces of today's foundations already form part of it. ✅
 
 ## Stage 6 · Contribute and extend
 

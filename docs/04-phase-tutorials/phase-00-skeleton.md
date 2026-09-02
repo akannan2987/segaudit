@@ -325,4 +325,4 @@ git switch develop
 
 Then GitHub → Actions: three green runs.
 
-Next: [`phase-01-data.md`](phase-01-data.md) — real scans, the phantom, and the SQL console.
+Next: `phase-01-data.md` — real scans, the phantom, and the SQL console. It arrives with Phase 1 (see the [roadmap](../05-roadmap.md)); until then, the [Handbook](../HANDBOOK.md#stage-3--build-the-pipeline-phase-by-phase) always shows what is next and what is live.
