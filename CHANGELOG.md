@@ -18,7 +18,8 @@ documentation improvement.
   Linux.
 - Repository documentation: README, contribution guide (branch model and release
   flow), licence, this changelog, glossary, and setup guides for Windows, macOS
-  and RHEL 8 written from real sessions with expected output and troubleshooting.
+  and RHEL 8 written from real sessions with expected output and troubleshooting,
+  architecture walkthrough, Git workflow guide, and the Phase 0 tutorial.
 
 ### Notes
 - Dependency pins are resolved for Python 3.11 on Windows, Linux, Apple-silicon

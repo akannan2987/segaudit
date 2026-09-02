@@ -129,6 +129,7 @@ flowchart TD
     H --> ST
     ST --> I["Review app (Streamlit)<br/>accept / flag → review ledger"]
     ST --> J["Agent tools (MCP server)<br/>+ grounded report drafter"]
+    ST -.-> R["R companion (optional)<br/>independent statistics, Quarto report"]
 ```
 
 Everything inside the dashed idea of "the pipeline" is reachable through one
@@ -163,14 +164,16 @@ number, the figure, and the one-paragraph plain-language meaning.*
 | Phase | What it delivers | Guide | Status |
 |---|---|---|---|
 | 0 | Skeleton: package, config, storage, CLI, tests, CI, docs scaffolding, branch model | [`phase-00-skeleton.md`](docs/04-phase-tutorials/phase-00-skeleton.md) | ✅ v0.1.0 |
-| 1 | Data: public dataset download and inventory, synthetic phantom generator, NIfTI/DICOM I/O with geometry preserved, input QA gates, case metadata table | `phase-01-data.md` | 🔜 v0.2 |
+| 1 | Data: public dataset download and inventory, synthetic phantom generator, NIfTI/DICOM I/O with geometry preserved, input QA gates, case metadata table, `segaudit sql` read-only console over the result tables | `phase-01-data.md` | 🔜 v0.2 |
 | 2 | Preprocessing (resample, reorient, normalise, denoise) and a classical baseline segmentation | `phase-02-preprocessing-baseline.md` | 🔜 v0.2 |
 | 3 | 3D U-Net training with MONAI on CPU; patient-level splits; seeded | `phase-03-model.md` | 🔜 v0.2 |
 | 4 | Validation: Dice, Hausdorff-95, normalised surface distance; per-case failure analysis | `phase-04-validation.md` | 🔜 v0.3 |
 | 5 | Uncertainty: test-time augmentation and Monte Carlo dropout; calibration | `phase-05-uncertainty.md` | 🔜 v0.3 |
 | 6 | Reference-free quality-control classifier, triage queue, operating point | `phase-06-quality-control.md` | 🔜 v0.4 |
 | 7 | Repeatability study with registration; minimum detectable difference | `phase-07-repeatability.md` | 🔜 v0.5 |
+| 7R | R companion (optional): independent R implementation of the Phase 7 statistics over the same Parquet tables, cross-checked against Python; Quarto report | `phase-07r-r-companion.md` | 🔜 v0.5 |
 | 8 | Biomarker table with confidence intervals; metadata join; stratification | `phase-08-biomarkers.md` | 🔜 v0.5 |
+| 8R | R companion (optional): bootstrap intervals and stratified comparison in R, cross-checked | `phase-08r-r-companion.md` | 🔜 v0.5 |
 | 9 | Review app (Streamlit), review ledger, import-external-mask path, 3D Slicer / Napari guide | `phase-09-review-app.md` | 🔜 v0.6 |
 | 10 | Agent tools: Model Context Protocol server, grounded report drafter | `phase-10-agent-tools.md` | 🔜 v0.7 |
 | 11 | Container image, HPC and GPU paths, release 1.0 | `phase-11-container-release.md` | 🔜 v1.0 |
@@ -185,6 +188,7 @@ command with its expected output, and a checkpoint that tells you it worked.
    [`docs/01-setup-windows.md`](docs/01-setup-windows.md) ·
    [`docs/01-setup-macos.md`](docs/01-setup-macos.md) ·
    [`docs/01-setup-rhel8.md`](docs/01-setup-rhel8.md)
+   (`docs/01b-setup-r.md`, optional — R, RStudio and `renv` for the R companion — arrives with Phase 7.)
 3. [`docs/02-architecture.md`](docs/02-architecture.md) — how the pieces fit, what each box does, and why the API-first rule exists.
 4. [`docs/03-git-workflow.md`](docs/03-git-workflow.md) — the branch model, the push sequence, and what to do when it goes wrong.
 5. [`docs/04-phase-tutorials/`](docs/04-phase-tutorials/) — one guide per build phase, starting with [`phase-00-skeleton.md`](docs/04-phase-tutorials/phase-00-skeleton.md).
@@ -278,7 +282,7 @@ segaudit/
     ├── 02-architecture.md        how the boxes fit; backend/frontend/storage explained
     ├── 03-git-workflow.md        branch model and push sequence, with failure cases
     ├── 04-phase-tutorials/       one guide per phase, in build order
-    │   └── phase-00-skeleton.md
+    │   └── phase-00-skeleton.md  (phase-01 … phase-11, plus 7R/8R R companions, arrive with their phases)
     ├── 05-roadmap.md             planned phases and features with approach and trigger
     ├── 06-product-and-technology-roadmap.md   MVP → hosted product, every option evaluated
     └── img/                      figures and screenshots
