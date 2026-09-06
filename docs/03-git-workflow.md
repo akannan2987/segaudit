@@ -198,6 +198,9 @@ Rows titled *Dependency Graph … by dependabot* are GitHub reading the requirem
 **E9. The safety script prints `NOT SAFE`.**
 *Do:* read each line — it names the file and the reason. Personal paths in docs: replace with `<you>`. Data file tracked: E4. Secret: remove it, never commit secrets, put them in `.env` (ignored) if a later phase needs one.
 
+**E11. The commit message came out wrong (a typo, a word in the wrong place, a stray character from pasting).**
+*Before pushing:* `git commit --amend -m "the corrected message"` — rewrites the last commit's message, nothing else, no force needed. *After pushing* (your own repository, no collaborators, minutes ago): amend, then `git push --force origin develop develop:beta develop:master`, then on `master` do `git fetch origin && git reset --hard origin/master` instead of `--ff-only` (which will refuse the rewritten history), and `git switch develop`. If a release tag pointed at the commit, recreate it with `git tag -fa vX.Y.Z -m "..."` and `git push --force origin vX.Y.Z`. Force-pushing is acceptable *only* in that sole-author, minutes-old situation; with collaborators, a fresh commit is the fix. *Prevention:* type `git commit` with no `-m` and paste the message into the editor that opens, or keep the message on one line in a text file and copy the whole line — quotes and line-wraps in a terminal are where messages get mangled.
+
 **E10. `Ignoring ... markers don't match` during install, after a pull.**
 Not Git at all — see the setup guide's troubleshooting; it is normal.
 

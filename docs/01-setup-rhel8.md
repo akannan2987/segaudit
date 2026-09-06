@@ -4,7 +4,7 @@
 
 **Prerequisites:** a machine or virtual machine running Red Hat Enterprise Linux 8 (or a binary-compatible rebuild such as Rocky Linux 8 or AlmaLinux 8), a login, an internet connection (or an internal package mirror), and about 45 minutes. Root (`sudo`) access is needed for two `dnf` commands; if you do not have it, section 4 shows what to ask an administrator for and how to proceed without it. No prior knowledge of anything.
 **Learning goal:** after this page you will have every tool SegAudit needs installed, understand what each one is for, and be able to open the project and prove that it works — the same proof the automated tests use.
-**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `29 passed`, and `ruff check .` prints `All checks passed!`.
+**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `73 passed`, and `ruff check .` prints `All checks passed!`.
 
 RHEL 8 is common on institutional servers and VMs, often accessed over SSH with no graphical desktop. This page assumes a terminal only; VS Code is optional and covered as a remote editor.
 
@@ -239,6 +239,25 @@ Successfully installed segaudit-0.1.0
 
 `-e` means *editable*: pip places a signpost pointing at `src/segaudit` instead of copying it, so any edit is live immediately. `--no-deps` means "do not re-resolve dependencies" — we just installed the exact pinned ones.
 
+**8e. The slide reader — nothing extra to do, but know what happened.**
+
+Step 8c also installed the whole-slide image reader for the pathology track:
+`openslide-bin` (the OpenSlide native library packaged as a pip wheel for Linux with
+glibc 2.28 or newer — exactly RHEL 8's version, which is why step 8a's pip upgrade
+matters: old pip cannot read the `manylinux_2_28` tag), `openslide-python` and
+`tiffslide` (a pure-Python fallback reader that needs no native library). Verify:
+
+```
+(.venv) $ python -c "import openslide, tiffslide; print('OpenSlide', openslide.__library_version__, '| tiffslide ok')"
+OpenSlide 4.0.1 | tiffslide ok
+```
+
+**Why two readers?** OpenSlide reads every scanner format but is a compiled library;
+if it ever cannot load (a locked-down VM, a missing system library), tiffslide still
+reads tiled TIFF and SVS files, so the pipeline never stops. SegAudit tries OpenSlide
+first and falls back automatically; `segaudit slide info --backend` lets you pick. No
+`dnf install openslide` is needed — the wheel is self-contained.
+
 ## 9. Prove it works
 
 **9a. The environment check.**
@@ -254,22 +273,28 @@ platform    Linux-4.18.0-553.el8_10.x86_64-x86_64-with-glibc2.28
 machine     x86_64
 cpu_count   4
 
-package       status   version     first needed
--------------------------------------------------------
-numpy         ok       2.4.6       Phase 0
-pandas        ok       3.0.5       Phase 0
-pyarrow       ok       25.0.1      Phase 0
-duckdb        ok       1.5.5       Phase 0
-PyYAML        ok       6.0.3       Phase 0
-nibabel       ok       5.4.2       Phase 1
-SimpleITK     ok       2.5.6       Phase 1
-pydicom       ok       3.0.2       Phase 1
-scikit-image  ok       0.26.0      Phase 2
-scikit-learn  ok       1.9.0       Phase 6
-torch         ok       2.13.0+cpu  Phase 3
-monai         ok       1.6.0       Phase 3
-pytest        ok       9.1.1       Phase 0 (dev)
-ruff          ok       0.16.5      Phase 0 (dev)
+package           status   version     first needed
+-----------------------------------------------------------
+numpy             ok       2.4.6       Phase 0
+pandas            ok       3.0.5       Phase 0
+pyarrow           ok       25.0.1      Phase 0
+duckdb            ok       1.5.5       Phase 0
+PyYAML            ok       6.0.3       Phase 0
+nibabel           ok       5.4.2       Phase 1
+SimpleITK         ok       2.5.6       Phase 1
+pydicom           ok       3.0.2       Phase 1
+scikit-image      ok       0.26.0      Phase 2
+scipy             ok       1.17.1      Phase 0P
+scikit-learn      ok       1.9.0       Phase 6
+torch             ok       2.13.0+cpu  Phase 3
+monai             ok       1.6.0       Phase 3
+Pillow            ok       12.3.0      Phase 0P
+tifffile          ok       2026.3.3    Phase 0P
+openslide-bin     ok       4.0.1.2     Phase 0P
+openslide-python  ok       1.4.6       Phase 0P
+tiffslide         ok       3.0.1       Phase 0P
+pytest            ok       9.1.1       Phase 0 (dev)
+ruff              ok       0.16.5      Phase 0 (dev)
 
 All required packages import. You are ready.
 ```
@@ -281,7 +306,7 @@ The `glibc2.28` in the platform line is RHEL 8's C library — the reason the 3.
 ```
 (.venv) $ pytest
 .............................                                    [100%]
-29 passed in 8.91s
+73 passed in 8.91s
 ```
 
 **9c. The linter.**
@@ -368,12 +393,19 @@ Each entry: what you see → what it means → what to do.
 **T12. Everything is broken and you want to start over.**
 *Do:* `deactivate`, `rm -rf .venv`, repeat from step 7. The venv is the only thing that changes; deleting it is a complete reset. Your code and Git history are untouched.
 
+**T13. `openslide-bin` "No matching distribution found" or `import openslide` fails.**
+*Means:* pip too old for the `manylinux_2_28` wheel tag (RHEL 8 ships a 2019 pip
+inside the venv until you upgrade it), or a very old kernel/glibc. *Do:*
+`python -m pip install --upgrade pip` then retry step 8c. If the native library still
+refuses, `segaudit slide info PATH --backend tiffslide` keeps everything working;
+report `ldd --version` so the guide can be corrected.
+
 ## 12. Checkpoint
 
 You are done with setup when, with `(.venv)` showing:
 
 - `segaudit check-env` ends with **`All required packages import. You are ready.`**
-- `pytest` ends with **`29 passed`**
+- `pytest` ends with **`73 passed`**
 - `ruff check .` prints **`All checks passed!`**
 
 You will never repeat this page on this VM. From here, the daily loop in section 10 is all you need.

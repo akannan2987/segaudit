@@ -63,7 +63,12 @@ ruff check .
 pytest
 python scripts/check_public_safe.py     # must print SAFE TO PUSH
 
-# 5. commit and push (section 4)
+# 5. the two-track self-check: for every shared component you touched, can you
+#    say in one line what it does on Track R and what it does on Track P?
+#    If one side has no answer, the component is not finished — say so in the
+#    changelog rather than shipping it silently.
+
+# 6. commit and push (section 4)
 ```
 
 Windows PowerShell users: the commands are identical; only the environment
@@ -142,7 +147,11 @@ end; patch versions for fixes and documentation.
   pipeline logic.
 - **Storage through the interface.** Tables are written and read through
   `segaudit.storage.Storage`, never by opening files directly in pipeline
-  code.
+  code; shared tables use the column names in `segaudit.schemas`.
+- **Two tracks, one core.** Code that depends on the kind of picture lives in
+  `segaudit/radiology/` or `segaudit/pathology/`; everything else lives once at
+  the top level and never imports from a track package. Nothing is implemented
+  twice.
 - **Deterministic.** Anything random takes its seed from the configuration.
   Two runs with the same config and code must produce identical tables.
 - **Tested.** New behaviour comes with a test in `tests/`; tests run on the
@@ -156,6 +165,11 @@ end; patch versions for fixes and documentation.
 - Every tutorial in `docs/` opens with its **prerequisites**, a **learning
   goal**, and a **checkpoint**, and shows every command with its expected
   output and a "if it fails" note.
+- **Both tracks, equal weight.** A page describing the product describes both
+  tracks; figures come in pairs (a volume and a slide) where a concept has a
+  twin; the test for every explanation is that a radiologist can follow the
+  pathology track and a pathologist the radiology track.
+- The changelog entry of every phase says what changed for each track.
 - Every term — medical, statistical or technical — is defined in
   `docs/00-glossary.md` with an everyday analogy. If a word is used and not in
   the glossary, that is a documentation bug; please report it.

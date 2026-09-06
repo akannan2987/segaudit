@@ -8,6 +8,18 @@ documentation improvement.
 
 ## [Unreleased]
 
+Next up: Phase 1 (scans: data) and Phase P1 (slides: data) → v0.2.0 — see
+[`docs/05-roadmap.md`](docs/05-roadmap.md).
+
+## [0.2.0-alpha.1] — 2026-09-06 — pre-release
+
+The two-track foundation. SegAudit now has two input doors — scans and
+slides — onto one shared audit core, with the pathology door opened by a
+synthetic slide dataset and a two-backend slide reader, and the documentation
+rewritten so a radiologist can follow the pathology track and a pathologist
+the radiology track. A *pre-release* because v0.2.0 is defined as "both
+tracks have data, baselines and a first model" ([`docs/05-roadmap.md`](docs/05-roadmap.md)).
+
 ### Added
 - **Two-track foundation (Phase 0P, code).** SegAudit now has two input doors
   onto one shared core. *Shared:* a `track` setting (`radiology` | `pathology`,
@@ -29,6 +41,25 @@ documentation improvement.
   all platforms: `openslide-bin`, `openslide-python`, `tiffslide`,
   `tifffile`, `Pillow`, `scipy`. CI reads a synthetic slide through both
   backends on all three runners. 44 new tests (73 total).
+- **Two-track foundation (Phase 0P, documentation).** README rewritten for
+  two tracks (paired figures, two-branch architecture diagram, interleaved
+  build log, data table with licences and non-commercial flags); Handbook
+  walking both tracks; glossary section 15 "Slides and stains" (34 terms);
+  architecture with the two-doors-one-core section and design rule 6; slide
+  reader section and troubleshooting in all three setup guides; roadmap
+  rewritten as the interleaved two-track plan with approach and effort per
+  phase; product roadmap extended with the slide pipeline and nine pathology
+  options (WSI tiling service, DICOM-WSI, OMERO, deep-zoom viewer, GPU
+  inference service, generative augmentation / virtual staining, image–text
+  models, cell and tissue ontologies, spatial-omics platforms); the Phase 0P
+  tutorial; two figures (`fig_slide_pyramid.svg`, `fig_two_tracks.svg`);
+  CONTRIBUTING's two-track self-check and equal-weight norm.
+- Illustrations across the documentation (from v0.1.0's follow-up): SVG
+  figures and Mermaid diagrams, plus an illustration standard in
+  `CONTRIBUTING.md`.
+
+### Changed
+- Package version `0.2.0a1`. `segaudit --version` reports it.
 - Illustrations across the documentation: SVG figures (voxel/volume, Dice
   overlap, the mean-hides-failures problem, virtual-environment toolboxes) in
   `docs/img/`, plus Mermaid diagrams in the setup guides, architecture, Git
@@ -77,5 +108,6 @@ Linux. See [`docs/HANDBOOK.md`](docs/HANDBOOK.md) for the guided tour.
   container) arrive as minor versions 0.2 → 1.0 per
   [`docs/05-roadmap.md`](docs/05-roadmap.md).
 
-[Unreleased]: https://github.com/akannan2987/segaudit/compare/v0.1.0...develop
+[Unreleased]: https://github.com/akannan2987/segaudit/compare/v0.2.0-alpha.1...develop
+[0.2.0-alpha.1]: https://github.com/akannan2987/segaudit/releases/tag/v0.2.0-alpha.1
 [0.1.0]: https://github.com/akannan2987/segaudit/releases/tag/v0.1.0

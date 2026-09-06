@@ -24,6 +24,7 @@
 12. [Agents, tools and generative models](#12-agents-tools-and-generative-models)
 13. [Containers, hardware and platforms](#13-containers-hardware-and-platforms)
 14. [Licences and data provenance](#14-licences-and-data-provenance)
+15. [Slides and stains (Track P)](#15-slides-and-stains-track-p)
 
 ---
 
@@ -350,6 +351,78 @@
 **Provenance.** Where data came from and what was done to it, recorded so any number can be traced back to its source. `data/raw/` is never edited for exactly this reason. *The chain of custody for evidence.*
 
 **Reproducibility.** Rerunning the same code on the same data and getting the same result. SegAudit's guarantee is byte-identical results within a dependency lane and numerically equivalent results across lanes.
+
+## 15. Slides and stains (Track P)
+
+Everything a radiologist needs to follow the pathology track. The picture is a
+2D photograph of stained tissue instead of a 3D scan; the ideas rhyme, and the
+entries say where.
+
+![A whole-slide image is a gigapixel photograph stored as a pyramid of zoom levels; a tile is a small square cut from one level; microns per pixel is the scale bar](img/fig_slide_pyramid.svg)
+
+**AJI (Aggregated Jaccard Index).** An overlap score for *instance* segmentation: it matches each predicted nucleus to a true one and penalises both missed nuclei and invented ones, unlike plain Dice which does not care whether two touching nuclei were drawn as one. *Marking a class register: right names, no one missed, no one counted twice.*
+
+**Cell graph.** A network whose nodes are cells (or nuclei) and whose edges connect neighbours — by k nearest neighbours or by Delaunay triangulation. Turns "where the cells are" into something a graph algorithm can reason over. *A social network of cells: who sits next to whom.*
+
+**Cell phenotyping.** Deciding what kind of cell each detected nucleus is — tumour, lymphocyte, stromal — from its shape, its stain, an IHC marker or mIF channels. *Sorting a crowd into roles by uniform.*
+
+**Delaunay triangulation.** A way of connecting points into triangles so no point sits inside another triangle's circle; used to build cell graphs where every cell is linked to its natural neighbours. *Drawing the fences between neighbouring houses without measuring tapes.*
+
+**Embedding.** A list of numbers (a *vector*) that a neural network produces to describe an image: similar tiles get similar vectors. Embeddings let you compare, cluster and classify tiles without hand-designed features. *A fingerprint for a picture.*
+
+**Foundation model.** A large neural network pre-trained on a huge, broad dataset so that it produces useful embeddings for many downstream tasks without being trained for each. In pathology, models pre-trained on millions of tiles. SegAudit uses one (Hibou-B) and compares it with general-purpose backbones. *A well-read generalist you consult before calling in specialists.*
+
+**H&E (haematoxylin and eosin).** The standard tissue stain: haematoxylin colours nuclei blue-purple, eosin colours cytoplasm and connective tissue pink. Nearly every slide a pathologist looks at is H&E. *The default two-colour ink of histology.*
+
+**IHC (immunohistochemistry).** A stain that marks one specific protein brown (with a blue nuclear counterstain), so cells expressing that protein can be counted. Ki-67, a proliferation marker, is the classic example. *Highlighting one word in a text with a marker pen.*
+
+**Ki-67 index.** The percentage of tumour cells whose nuclei are positive for the Ki-67 protein — a proliferation biomarker. Depends entirely on counting cells correctly, which is why segmentation QC matters here.
+
+**k-nearest-neighbour (k-NN) graph / classifier.** A graph where each cell is linked to its k closest cells; also a classifier that labels a tile by the labels of the k most similar embeddings. *Ask your five nearest neighbours; go with the majority.*
+
+**Linear probe.** Freezing a network's embeddings and training only a simple linear classifier on top; measures how much useful information the embeddings already contain. *Testing a student with an open-book exam on notes they wrote themselves.*
+
+**Magnification.** The objective lens power the slide was scanned at — 20× or 40× usually. Related to but not the same as mpp: two scanners at "20×" can have different mpp. SegAudit records both and trusts mpp for measurements.
+
+**Message passing.** The core operation of a graph neural network: each node updates its own vector by combining its neighbours' vectors, repeated for a few rounds, so information spreads along edges. *Gossip: after three rounds, everyone knows what their neighbours' neighbours know.*
+
+**mIF (multiplex immunofluorescence).** Several proteins labelled at once with different fluorescent dyes on one slide, imaged as separate channels; gives per-cell phenotypes far richer than IHC. *Highlighting five words in five colours on the same page.*
+
+**Microns per pixel (mpp).** The physical width of one pixel at full resolution — e.g. 0.5 µm. Areas, densities and distances are pixels × mpp; get it wrong and every pathology biomarker is wrong. The slide twin of voxel spacing. *The scale bar on a map.*
+
+**Nucleus (plural nuclei).** The dark, stained centre of a cell; on H&E the object nuclei-segmentation models outline. Counting and classifying nuclei is how cell densities and indices are derived.
+
+**Out-of-distribution (OOD).** Data unlike anything the model was trained on — a new stain, scanner or tissue. Distance from known embeddings is a warning sign, which is why embedding distance is one of SegAudit's QC features. *A customer speaking a language the shop has never heard.*
+
+**Panoptic Quality (PQ).** The standard score for instance segmentation with classes: how well matched nuclei overlap (segmentation quality) times how many were correctly found (recognition quality). Like AJI, it punishes missed and invented objects. *Both "how neat" and "how many right".*
+
+**Pen mark, tissue fold, out-of-focus.** Three common slide artefacts: ink drawn by a pathologist, tissue doubled over on itself, and blur from the scanner missing focus. All fool models and all are what slide-level QC must flag. *Coffee stains on the exam paper.*
+
+**Pyramid level.** One zoom level of a whole-slide image: level 0 is full resolution, level 1 half, level 2 a quarter. Software reads the level that suits the task. *The zoom steps on an online map.*
+
+**Ripley's K (and cross-K).** A statistic asking whether points are more clustered or more dispersed than random at each distance; the *cross* version asks the same about two types (are lymphocytes closer to tumour cells than chance?). The basis of tumour–immune interaction scores. *Are the shops in this town spread out, or huddled in one street?*
+
+**Self-supervised learning.** Training a network on unlabelled images by giving it a puzzle (match two augmented views of the same tile, predict a hidden part) so it learns useful embeddings without any expert labels. Most pathology foundation models are trained this way. *Learning a language by reading, with no teacher.*
+
+**Spatial transcriptomics (ST).** Measuring which genes are active at many positions across a tissue section, each position a **spot** of known size, aligned to an H&E image of the same section. Links what the tissue *looks like* to what it is *doing*. *A map that shows, house by house, which lights are on.*
+
+**Spot (Visium).** One measurement position in a spatial-transcriptomics assay, ~55 µm across, covering a few cells; its location on the H&E image is known, so morphology and gene activity can be paired.
+
+**Stain augmentation.** Randomly perturbing colours in the stain space during training so a model learns anatomy rather than one lab's colour recipe. *Practising in different lighting.*
+
+**Stain deconvolution.** Separating an RGB H&E image into its haematoxylin and eosin contributions (Macenko and Vahadane are the classic methods). Enables stain normalisation and stain-aware features. *Un-mixing two paints back into their tubes.*
+
+**Stain normalisation.** Recolouring a slide so its stains match a reference, removing lab-to-lab and batch-to-batch colour differences before analysis. *Converting every photo to the same white balance.*
+
+**Tile.** A small square (commonly 256 px) cut from a whole-slide image at a chosen level — the unit models train on and predict on. SegAudit's synthetic tiles are 256 px at 0.5 µm/px. *One puzzle piece of the picture.*
+
+**TIL density (tumour-infiltrating lymphocytes).** The number of lymphocytes per unit area inside tumour regions — a biomarker used in oncology research. Depends on nuclei detection, phenotyping and tissue segmentation all being right.
+
+**Tissue detection.** Finding which parts of a slide contain tissue and which are empty glass, so tiles are only cut where there is something to analyse. *Skipping the blank pages.*
+
+**Tumour–stroma ratio (TSR).** The proportion of tumour area to supporting connective tissue (stroma) in a region. Derived from tissue segmentation.
+
+**Whole-slide image (WSI).** The digital scan of an entire glass slide at microscope resolution — often 100 000 pixels across, several gigabytes, stored as a pyramid. Read with OpenSlide (native) or tiffslide (pure Python) in SegAudit. *A photo of a whole city in which you can read the street signs.*
 
 ---
 

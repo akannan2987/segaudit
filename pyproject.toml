@@ -15,7 +15,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "segaudit"
-version = "0.1.0"
+version = "0.2.0a1"
 description = "Quality control and triage for medical image segmentation, on scans and slides: know which segmentations you can trust."
 readme = "README.md"
 license = { text = "MIT" }

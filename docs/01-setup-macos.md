@@ -4,7 +4,7 @@
 
 **Prerequisites:** a Mac (Intel or Apple silicon) running macOS 12 or newer, an administrator password, an internet connection, and about 45 minutes. No prior knowledge of anything.
 **Learning goal:** after this page you will have every tool SegAudit needs installed, understand what each one is for, and be able to open the project and prove that it works — the same proof the automated tests use.
-**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `29 passed`, and `ruff check .` prints `All checks passed!`.
+**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `73 passed`, and `ruff check .` prints `All checks passed!`.
 
 This page was written by running every command on a real Intel MacBook Pro (macOS 15) and pasting what appeared. Where Apple-silicon Macs differ, it says so.
 
@@ -255,6 +255,24 @@ Successfully installed segaudit-0.1.0
 
 `-e` means *editable*: rather than copying the code into the venv, pip places a signpost pointing at `src/segaudit`, so any edit you make is live immediately. `--no-deps` means "do not re-resolve dependencies" — we just installed the exact pinned ones and do not want pip second-guessing them.
 
+**8e. The slide reader — nothing extra to do, but know what happened.**
+
+Step 8c also installed the whole-slide image reader for the pathology track:
+`openslide-bin` (the OpenSlide native library packaged as a normal pip wheel,
+universal for Intel and Apple-silicon Macs, macOS 11 or newer), `openslide-python`
+(the Python side of it) and `tiffslide` (a pure-Python fallback reader that
+needs no native library at all). Verify in one line:
+
+```
+$ python -c "import openslide, tiffslide; print('OpenSlide', openslide.__library_version__, '| tiffslide ok')"
+OpenSlide 4.0.1 | tiffslide ok
+```
+
+**Why two readers?** OpenSlide reads every scanner format (Aperio, Hamamatsu, Leica, …)
+but is a compiled library; if it ever cannot load on a machine, tiffslide still reads
+tiled TIFF and SVS files, so the pipeline never stops. SegAudit tries OpenSlide first and
+falls back automatically; `segaudit slide info --backend` lets you pick.
+
 ## 9. Prove it works
 
 Three commands. Each is also what the automated tests on GitHub run, so if these pass here, the project is in the same state as the published one.
@@ -272,22 +290,28 @@ platform    macOS-15.7.4-x86_64-i386-64bit
 machine     x86_64
 cpu_count   16
 
-package       status   version     first needed
--------------------------------------------------------
-numpy         ok       1.26.4      Phase 0
-pandas        ok       3.0.5       Phase 0
-pyarrow       ok       25.0.1      Phase 0
-duckdb        ok       1.5.5       Phase 0
-PyYAML        ok       6.0.3       Phase 0
-nibabel       ok       5.4.2       Phase 1
-SimpleITK     ok       2.5.6       Phase 1
-pydicom       ok       3.0.2       Phase 1
-scikit-image  ok       0.26.0      Phase 2
-scikit-learn  ok       1.9.0       Phase 6
-torch         ok       2.2.2       Phase 3
-monai         ok       1.4.0       Phase 3
-pytest        ok       9.1.1       Phase 0 (dev)
-ruff          ok       0.16.5      Phase 0 (dev)
+package           status   version     first needed
+-----------------------------------------------------------
+numpy             ok       1.26.4      Phase 0
+pandas            ok       3.0.5       Phase 0
+pyarrow           ok       25.0.1      Phase 0
+duckdb            ok       1.5.5       Phase 0
+PyYAML            ok       6.0.3       Phase 0
+nibabel           ok       5.4.2       Phase 1
+SimpleITK         ok       2.5.6       Phase 1
+pydicom           ok       3.0.2       Phase 1
+scikit-image      ok       0.26.0      Phase 2
+scipy             ok       1.17.1      Phase 0P
+scikit-learn      ok       1.9.0       Phase 6
+torch             ok       2.2.2       Phase 3
+monai             ok       1.4.0       Phase 3
+Pillow            ok       12.3.0      Phase 0P
+tifffile          ok       2026.3.3    Phase 0P
+openslide-bin     ok       4.0.1.2     Phase 0P
+openslide-python  ok       1.4.6       Phase 0P
+tiffslide         ok       3.0.1       Phase 0P
+pytest            ok       9.1.1       Phase 0 (dev)
+ruff              ok       0.16.5      Phase 0 (dev)
 
 All required packages import. You are ready.
 ```
@@ -299,10 +323,10 @@ Read it once: it tells you which phase first needs each package, so a missing on
 ```
 $ pytest
 .............................                                    [100%]
-29 passed in 10.73s
+73 passed in 10.73s
 ```
 
-Twenty-nine dots, twenty-nine small automated checks of the configuration loader, the storage layer and the command line, each passing. The time varies by machine.
+Seventy-three dots, seventy-three small automated checks of the configuration loader, the storage layer, the command line, the table schemas, the slide reader and the synthetic tile generator, each passing. The time varies by machine.
 
 **9c. The linter.**
 
@@ -393,12 +417,24 @@ Each entry: what you see → what it means → what to do.
 **T12. Everything is broken and you want to start over.**
 *Do:* `deactivate`, then `rm -rf .venv`, then repeat from step 7. The venv is the only thing that changes on your machine; deleting it is a complete reset. Your code and Git history are untouched.
 
+**T13. `import openslide` fails with `OSError` / `dlopen` / "library not found".**
+*Means:* the native OpenSlide library could not load — usually macOS older than 11, or a
+partial install. *Do:* `python -m pip install --force-reinstall openslide-bin openslide-python`
+and retry. If it still fails, nothing is blocked: the pipeline falls back to tiffslide
+automatically, and `segaudit slide info PATH --backend tiffslide` proves it. Report the
+macOS version so the guide can be corrected.
+
+**T14. `openslide-bin` "No matching distribution found".**
+*Means:* pip is too old to read the wheel's platform tag, or macOS is older than 11.
+*Do:* `python -m pip install --upgrade pip` (step 8a) and retry; on macOS 10.x use the
+tiffslide fallback (everything else works).
+
 ## 12. Checkpoint
 
 You are done with setup when, with `(.venv)` showing:
 
 - `segaudit check-env` ends with **`All required packages import. You are ready.`**
-- `pytest` ends with **`29 passed`**
+- `pytest` ends with **`73 passed`**
 - `ruff check .` prints **`All checks passed!`**
 
 You will never repeat this page on this Mac. From here, the daily loop in section 10 is all you need.

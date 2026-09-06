@@ -4,7 +4,7 @@
 
 **Prerequisites:** a PC running Windows 10 or 11 (64-bit), the ability to install programs (administrator rights, or an IT-approved software centre), an internet connection, and about 45 minutes. No prior knowledge of anything.
 **Learning goal:** after this page you will have every tool SegAudit needs installed, understand what each one is for, and be able to open the project and prove that it works — the same proof the automated tests use.
-**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `29 passed`, and `ruff check .` prints `All checks passed!`.
+**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `73 passed`, and `ruff check .` prints `All checks passed!`.
 
 Everything on this page uses **PowerShell**, the modern Windows command line. If you have used the older *Command Prompt* (`cmd.exe`), PowerShell looks similar but is not identical; use PowerShell as written.
 
@@ -259,6 +259,25 @@ Successfully installed segaudit-0.1.0
 
 `-e` means *editable*: pip places a signpost pointing at `src\segaudit` instead of copying it, so any edit is live immediately. `--no-deps` means "do not re-resolve dependencies" — we just installed the exact pinned ones.
 
+**8e. The slide reader — nothing extra to do, but know what happened.**
+
+Step 8c also installed the whole-slide image reader for the pathology track:
+`openslide-bin` (the OpenSlide native library packaged as a normal pip wheel for
+64-bit Windows 10 or newer), `openslide-python` (the Python side of it) and
+`tiffslide` (a pure-Python fallback reader that needs no native library at all).
+Verify in one line:
+
+```
+(.venv) PS> python -c "import openslide, tiffslide; print('OpenSlide', openslide.__library_version__, '| tiffslide ok')"
+OpenSlide 4.0.1 | tiffslide ok
+```
+
+**Why two readers?** OpenSlide reads every scanner format but is a compiled library
+(DLLs); if it ever cannot load, tiffslide still reads tiled TIFF and SVS files, so
+the pipeline never stops. SegAudit tries OpenSlide first and falls back automatically;
+`segaudit slide info --backend` lets you pick. On Windows the wheel bundles its DLLs,
+so there is no separate OpenSlide download and no PATH editing — the old, painful way.
+
 ## 9. Prove it works
 
 Three commands. Each is also what the automated tests on GitHub run on a Windows machine, so if these pass here, the project is in the same state as the published one.
@@ -276,22 +295,28 @@ platform    Windows-11-10.0.26100-SP0
 machine     AMD64
 cpu_count   8
 
-package       status   version     first needed
--------------------------------------------------------
-numpy         ok       2.4.6       Phase 0
-pandas        ok       3.0.5       Phase 0
-pyarrow       ok       25.0.1      Phase 0
-duckdb        ok       1.5.5       Phase 0
-PyYAML        ok       6.0.3       Phase 0
-nibabel       ok       5.4.2       Phase 1
-SimpleITK     ok       2.5.6       Phase 1
-pydicom       ok       3.0.2       Phase 1
-scikit-image  ok       0.26.0      Phase 2
-scikit-learn  ok       1.9.0       Phase 6
-torch         ok       2.13.0+cpu  Phase 3
-monai         ok       1.6.0       Phase 3
-pytest        ok       9.1.1       Phase 0 (dev)
-ruff          ok       0.16.5      Phase 0 (dev)
+package           status   version     first needed
+-----------------------------------------------------------
+numpy             ok       2.4.6       Phase 0
+pandas            ok       3.0.5       Phase 0
+pyarrow           ok       25.0.1      Phase 0
+duckdb            ok       1.5.5       Phase 0
+PyYAML            ok       6.0.3       Phase 0
+nibabel           ok       5.4.2       Phase 1
+SimpleITK         ok       2.5.6       Phase 1
+pydicom           ok       3.0.2       Phase 1
+scikit-image      ok       0.26.0      Phase 2
+scipy             ok       1.17.1      Phase 0P
+scikit-learn      ok       1.9.0       Phase 6
+torch             ok       2.13.0+cpu  Phase 3
+monai             ok       1.6.0       Phase 3
+Pillow            ok       12.3.0      Phase 0P
+tifffile          ok       2026.3.3    Phase 0P
+openslide-bin     ok       4.0.1.2     Phase 0P
+openslide-python  ok       1.4.6       Phase 0P
+tiffslide         ok       3.0.1       Phase 0P
+pytest            ok       9.1.1       Phase 0 (dev)
+ruff              ok       0.16.5      Phase 0 (dev)
 
 All required packages import. You are ready.
 ```
@@ -301,7 +326,7 @@ All required packages import. You are ready.
 ```
 (.venv) PS> pytest
 .............................                                    [100%]
-29 passed in 12.40s
+73 passed in 12.40s
 ```
 
 **9c. The linter.**
@@ -393,12 +418,19 @@ Each entry: what you see → what it means → what to do.
 **T12. Everything is broken and you want to start over.**
 *Do:* `deactivate`, then `Remove-Item -Recurse -Force .venv`, then repeat from step 7. The venv is the only thing that changes on your machine; deleting it is a complete reset. Your code and Git history are untouched.
 
+**T13. `import openslide` fails with `OSError` / "DLL load failed".**
+*Means:* the bundled DLLs could not load — usually an antivirus quarantine or a
+32-bit Python. *Do:* confirm `py -3.11 -c "import struct; print(struct.calcsize('P')*8)"`
+prints `64`; then `python -m pip install --force-reinstall openslide-bin openslide-python`.
+Nothing is blocked meanwhile: `segaudit slide info PATH --backend tiffslide` uses the
+pure-Python reader.
+
 ## 12. Checkpoint
 
 You are done with setup when, with `(.venv)` showing:
 
 - `segaudit check-env` ends with **`All required packages import. You are ready.`**
-- `pytest` ends with **`29 passed`**
+- `pytest` ends with **`73 passed`**
 - `ruff check .` prints **`All checks passed!`**
 
 You will never repeat this page on this PC. From here, the daily loop in section 10 is all you need.

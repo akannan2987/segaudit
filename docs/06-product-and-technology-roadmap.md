@@ -3,7 +3,7 @@
 # 06 · Product & technology roadmap — from this repository to a real product
 
 **Prerequisites:** none. Every term is explained here with an everyday analogy; [`02-architecture.md`](02-architecture.md) gives useful background.
-**Learning goal:** you understand what it would take to turn SegAudit from a pipeline on a laptop into an industrialised, cloud-hosted, sellable product — and, just as importantly, why almost none of that belongs in the project *today*.
+**Learning goal:** you understand what it would take to turn SegAudit from a pipeline on a laptop into an industrialised, cloud-hosted, sellable product — for scans and for slides — and, just as importantly, why almost none of that belongs in the project *today*.
 **How to read this page:** every technology option below is answered with the same three questions — *Is it required now? Why? What is the concrete benefit, and what is the cost?* — and ends with a **verdict** and a **trigger**. The verdicts:
 
 | Verdict | Meaning |
@@ -24,6 +24,7 @@ The governing rule, from [`CONTRIBUTING.md`](../CONTRIBUTING.md): **justify, don
 3. [Product surface](#3-product-surface)
 4. [Data platform](#4-data-platform)
 5. [AI components](#5-ai-components)
+5b. [Pathology platform and AI components](#5b-pathology-platform-and-ai-components)
 6. [Cloud and operations](#6-cloud-and-operations)
 7. [Security and the regulation of medical data](#7-security-and-the-regulation-of-medical-data)
 8. [Discoverability and go-to-market](#8-discoverability-and-go-to-market)
@@ -37,6 +38,8 @@ The governing rule, from [`CONTRIBUTING.md`](../CONTRIBUTING.md): **justify, don
 Imagine a small research imaging group. Every week, scans arrive; a segmentation model (theirs, or a third-party tool) outlines structures; volumes go into study spreadsheets. Nobody has time to look at every outline, and everybody knows some are wrong.
 
 The finished SegAudit product is a service that group points their scans (or their finished masks) at. It runs the audit — uncertainty, quality score, triage — and gives back three things: a **short review queue** ("look at these 14 of 200"), a **defensible biomarker table** (volumes with confidence intervals, QC flags, repeatability figures), and a **written report** a study lead can file. Reviewers accept or flag cases in a web page; every decision lands in a permanent ledger; other software can drive the whole thing through an agent interface.
+
+The same group's pathology colleagues live the same week with slides: a nuclei or tissue model (theirs, or a public tool) segments and phenotypes cells, spatial scores and Ki-67 indices go into study spreadsheets, and nobody has time to look at every tile — let alone every slide when the stain batch changes. The finished product points at slides exactly as it points at scans: tile-level audit, one review decision per slide, defensible spatial biomarkers with confidence intervals and repeatability figures, the same report, the same ledger, the same agent interface.
 
 What it is *not*: a diagnostic device. It audits measurements; it does not diagnose patients. That single sentence decides most of the regulatory section below.
 
@@ -61,6 +64,30 @@ flowchart LR
 | Serve | CLI + SQL console; Streamlit review app; MCP tools; the `api.py` counter everything calls | ✅ api/storage today; 🔜 Phases 1, 9, 10 | Multi-user web front end; authentication; audit trail |
 
 The honest headline: **today's MVP (v0.1.0) contributes the foundations of every stage** — the API-first core, config-driven paths, the storage interface, seeded reproducibility, cross-platform CI — and those foundations are precisely the parts that make the right-hand column *additions* rather than *rewrites*.
+
+### The slide pipeline, beside the volume pipeline
+
+```mermaid
+flowchart LR
+    A["INGEST<br/>slides (WSI) or tiles arrive"] --> B["TILE<br/>tissue detection · tiling at target mpp<br/>stain normalisation · artefact QC"]
+    B --> C["SEGMENT / PHENOTYPE or IMPORT<br/>nuclei + tissue models, foundation-model<br/>embeddings, or bring-your-own masks"]
+    C --> D["AUDIT<br/>uncertainty · QC score · tile → slide triage"]
+    D --> E["SPATIAL ANALYSIS<br/>cell graphs · densities · Ripley's K<br/>TIL density · Ki-67 · TSR"]
+    E --> F["REPORT<br/>biomarkers with CIs · grounded written report"]
+    F --> G["SERVE<br/>review UI (tiles, slides) · SQL · agent tools"]
+```
+
+| Product stage (slides) | What the foundations already have (or have planned) | Status | What productisation adds |
+|---|---|---|---|
+| Ingest | Slide reader with two backends preserving mpp/magnification/levels; synthetic slides; `slides`/`tiles`/`cells` schemas | ✅ 0P; 🔜 P1 downloads | Upload / watched bucket; DICOM-WSI; OMERO |
+| Tile | Tissue detection, tiling, stain normalisation, artefact QC | 🔜 P1–P2 | WSI tiling service; tile cache |
+| Segment / phenotype / import | Nuclei + tissue models; import path; foundation-model embeddings | 🔜 P3, P6, P7 | GPU inference service; model registry |
+| Audit | Same shared QC code path as scans; tile → slide aggregation | 🔜 P5 (shared core from R5–R6) | Scheduled re-audits |
+| Spatial analysis | Cell graphs, spatial statistics, biomarkers into the shared table | 🔜 P7–P8 | Spatial-omics platform integration |
+| Report | Shared biomarker table + grounded drafter | 🔜 P8, S10 | Coded findings via ontologies |
+| Serve | Shared CLI/SQL/app/MCP with slide views | ✅ api/storage; 🔜 S9, S10 | Deep-zoom viewer; multi-user front end |
+
+The honest headline for slides: the two-track foundation contributes the ingest layer (reader, schemas, synthetic slides) today; everything past it reuses the shared core exactly as the scan pipeline does, which is why the right-hand column is again *additions*, not rewrites.
 
 ---
 
@@ -161,6 +188,73 @@ The honest headline: **today's MVP (v0.1.0) contributes the foundations of every
 *Benefit (later):* findings coded so hospital systems ingest them without translation ("volume of SNOMED-coded structure X, flagged low-confidence"). *Cost:* licensing/affiliate terms for SNOMED CT in some countries, mapping maintenance, and graph infrastructure.
 *Verdict:* **Optional** — *trigger:* a clinical partner whose systems require coded findings.
 
+## 5b. Pathology platform and AI components
+
+Nine options that exist because the second track does. Same three questions, same verdicts.
+
+### WSI storage and tiling service
+
+*What it is:* a service that stores whole-slide images centrally and cuts, caches and serves tiles at any level on request, so no client ever handles a multi-gigabyte file. *Analogy:* a bakery that slices the loaf once and hands out slices; today every kitchen slices its own loaf.
+*Required now?* **No.** *Why:* slides live on local disk behind the config's paths; the reader cuts tiles on demand; a study is a handful of slides.
+*Benefit:* tile once per slide, share across users and runs; the basis of any hosted product for slides. *Cost:* a service plus object storage plus a tile cache to keep coherent.
+*Verdict:* **Recommended later** — *trigger:* more than ~50 slides under management, or hosting.
+
+### DICOM-WSI
+
+*What it is:* the DICOM standard's way of storing whole-slide images (the hospital-systems format, extended to slides), as opposed to vendor formats like SVS or NDPI. *Analogy:* the hospital's official filing form versus the scanner maker's own folder.
+*Required now?* **No.** *Why:* public datasets and scanners ship vendor formats, which OpenSlide reads; DICOM-WSI appears when a hospital PACS is the source.
+*Benefit:* interoperability with clinical archives. *Cost:* a reader lane (OpenSlide 4 has one; tiffslide does not) and metadata mapping.
+*Verdict:* **Optional** — *trigger:* a DICOM-WSI source.
+
+### OMERO
+
+*What it is:* an open-source image data management server for microscopy — images, metadata, annotations, permissions, viewer. *Analogy:* a library system for images, with membership cards.
+*Required now?* **No.** *Why:* one user, files on disk.
+*Benefit:* central management for a lab; annotation interchange with QuPath. *Cost:* a server to run and integrate.
+*Verdict:* **Optional** — *trigger:* a multi-user lab whose images already live in OMERO.
+
+### Deep-zoom slide viewer (OpenSeadragon-style)
+
+*What it is:* a browser component that pans and zooms a gigapixel image smoothly by fetching tiles on demand — the online-map experience for slides. *Analogy:* a map you can drag and zoom instead of a stack of printed sections.
+*Required now?* **No.** *Why:* the Phase 9 review app shows tiles and thumbnails, which is enough to review a triage queue.
+*Benefit:* reviewers navigate whole slides in context; overlays of masks and QC heatmaps. *Cost:* a tile server (see above) and front-end work.
+*Verdict:* **Recommended later** — *trigger:* reviewers ask for whole-slide navigation, or the React front end lands.
+
+### GPU inference service for foundation models
+
+*What it is:* a service running the foundation model on GPUs so whole slides can be embedded in minutes rather than hours. *Analogy:* an industrial oven versus the kitchen stove.
+*Required now?* **No.** *Why:* CPU embeds a tile subsample within budget; the end-to-end demo is scoped to that.
+*Benefit:* whole-slide embeddings, routine re-embedding. *Cost:* GPU hours (see the cost model), a queue, a deployment.
+*Verdict:* **Recommended later** — *trigger:* hosted product, or more than ~10 slides per day.
+
+### Generative augmentation and virtual staining
+
+*What it is:* generative models that synthesise new training tiles (augmentation) or predict one stain from another — an IHC image from H&E (virtual staining). *Analogy:* an artist painting plausible extra photographs of a place versus taking more photos.
+*Required now?* **No.** *Why:* stain augmentation (P2) gives most of the robustness benefit deterministically; virtual staining risks inventing biology where the paired data is thin.
+*Benefit:* more varied training data; marker predictions where IHC was never done. *Cost:* GPU training, a hallucination failure mode that must be evaluated slide by slide.
+*Verdict:* **Optional** — *trigger:* paired data proven too scarce for P9's supervised route.
+
+### Image–text pathology foundation models
+
+*What they are:* models trained on slides *and* their written reports, so they map images and text into one space — enabling zero-shot labelling by description and report grounding. *Analogy:* a guide who has read the captions of every photo in the museum.
+*Required now?* **No.** *Why:* vision-only embeddings (Hibou-B) suffice for QC and probes; the open, non-gated options in this class are fewer.
+*Benefit:* labels without annotation; richer report drafting. *Cost:* licence gating, larger models, a new evaluation burden.
+*Verdict:* **Optional** — *trigger:* text supervision or report data available under a usable licence.
+
+### Cell and tissue ontologies (Cell Ontology, Uberon) alongside SNOMED CT and RadLex
+
+*What they are:* agreed vocabularies for cell types (Cell Ontology) and anatomy across species (Uberon), the pathology counterparts of RadLex for radiology and SNOMED CT for clinical terms. *Analogy:* the same family tree for ideas, now including the cells.
+*Required now?* **No.** *Why:* phenotypes are three labels in a config today.
+*Benefit:* findings coded so they can be merged with other studies or systems. *Cost:* mapping maintenance; licence terms for SNOMED CT.
+*Verdict:* **Optional** — *trigger:* a partner or downstream system that consumes coded findings.
+
+### Spatial-omics data platforms
+
+*What they are:* toolkits and platforms built around the AnnData/SpatialData containers (scanpy, squidpy and their hosted cousins) for multi-sample spatial transcriptomics. *Analogy:* a purpose-built warehouse for one very specific kind of parcel.
+*Required now?* **No.** *Why:* P9 reads one Visium sample with `h5py` and pandas; the optional squidpy lane is documented for readers who already live in that ecosystem.
+*Benefit:* scaling to many samples, standard analyses. *Cost:* a heavy dependency stack for one phase.
+*Verdict:* **Optional** — *trigger:* a multi-sample spatial-transcriptomics study.
+
 ## 6. Cloud and operations
 
 ### Containers (Docker / Podman)
@@ -228,7 +322,7 @@ A sketch, not a plan — its purpose is to prove the shape of a viable offer exi
 | Tier | Who it is for | What they get | Sketch price |
 |---|---|---|---|
 | **Open source** | Anyone | This repository, forever, MIT-licensed; run it yourself | Free |
-| **Hosted team** | One research group | Hosted audits, review UI with accounts, report archive, support | ~$200–500 / month |
+| **Hosted team** | One research group | Hosted audits on scans and slides, review UI with accounts, report archive, support | ~$200–500 / month |
 | **Site** | Institution / core facility | Multiple teams, PostgreSQL ledger with audit trail, SSO, data-processing agreement | ~$1–2k / month |
 | **Integration** | Vendors / platforms | MCP/API access embedded in their product, coded findings if built | Per agreement |
 
@@ -259,5 +353,14 @@ Two honest notes: the open-source tier is not a loss-leader trick — it is the 
 | GDPR / HIPAA / SaMD duties | Documented duty | Any identifiable data |
 | SEO / AEO / GEO | Optional | Product site exists |
 | Pricing & packaging | Sketch (this page) | First pilot conversation |
+| WSI storage & tiling service | Recommended later | >50 slides or hosting |
+| DICOM-WSI | Optional | DICOM-WSI source |
+| OMERO | Optional | Multi-user lab on OMERO |
+| Deep-zoom slide viewer | Recommended later | Whole-slide navigation requested |
+| GPU inference service (foundation models) | Recommended later | Hosting or >10 slides/day |
+| Generative augmentation / virtual staining | Optional | Paired data too scarce |
+| Image–text pathology foundation models | Optional | Usable text supervision |
+| Cell / tissue ontologies (+ SNOMED CT, RadLex) | Optional | Consumer of coded findings |
+| Spatial-omics platforms | Optional | Multi-sample ST study |
 
 Maintained like everything else: a fired trigger changes a verdict **in the same commit** as the change it justifies, and the [Handbook](HANDBOOK.md#stage-5--from-pipeline-to-product) links here as Stage 5.
