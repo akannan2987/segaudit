@@ -8,8 +8,34 @@ documentation improvement.
 
 ## [Unreleased]
 
-Next up: Phase 1 (scans: data) and Phase P1 (slides: data) → v0.2.0 — see
-[`docs/05-roadmap.md`](docs/05-roadmap.md).
+### Added
+- **Phase 1 — data, Track R (code).** *Track R:* NIfTI I/O with geometry
+  preserved (`radiology/io_nifti.py`: frozen `Volume`, spacing, orientation,
+  volumes in ml, header-only reads); the MRI phantom generator
+  (`radiology/phantom_volume.py`: seeded T1-like volumes with a two-label
+  hippocampus-shaped structure, five mask failure modes, four image
+  artefacts, written in the public dataset's layout); input QA gates
+  (`radiology/qa.py`: spacing, shape, finiteness, constant images, labels,
+  foreground, image–mask geometry match; limits from the `qa` config section);
+  dataset download that verifies the published MD5, resumes partial
+  downloads, refuses path traversal and is idempotent, plus an inventory that
+  writes `cases` (geometry, intensity statistics, label volumes) and
+  `qa_issues` without ever dropping a case (`radiology/dataset.py`); DICOM
+  series → NIfTI conversion with a de-identified metadata summary
+  (`radiology/dicom.py`). *Shared:* the `segaudit sql` read-only console
+  (one-shot, `-f file.sql`, `--csv`, or interactive multi-line), the
+  `queries/` folder with four documented statements, and the `runs` ledger
+  written by every table-producing command (`api.record_run`). Commands:
+  `segaudit data download | inventory | convert-dicom`, `segaudit sql`;
+  `segaudit data phantom` now works on both tracks. Configs gain `data.msd`
+  (URL, MD5, archive, folder) and `qa` sections. CI runs the Track R data
+  door on all three runners. 29 new tests (102 total; the two 0P tests that
+  pinned "radiology phantom not yet" now assert the delivered behaviour).
+  *Track P:* unchanged; its downloads and inventory arrive with Phase P1 and
+  say so explicitly.
+
+Next up: Phase 1 documentation (tutorial `phase-01-data.md`), then Phase P1
+(slides: data) → v0.2.0 — see [`docs/05-roadmap.md`](docs/05-roadmap.md).
 
 ## [0.2.0-alpha.1] — 2026-09-06 — pre-release
 

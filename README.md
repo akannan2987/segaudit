@@ -237,7 +237,7 @@ demonstrated on both tracks.
 |---|---|---|---|---|---|
 | 0.1.0 | 0 | S | Skeleton: package, config, storage, CLI, tests, CI, docs scaffolding, branch model | [`phase-00-skeleton.md`](docs/04-phase-tutorials/phase-00-skeleton.md) | ✅ |
 | 0.2 | 0P | S | Two-track foundation: `track` setting, table schemas, `radiology/` + `pathology/`, whole-slide reader (OpenSlide + tiffslide), synthetic H&E tiles, `data phantom` / `slide info` | [`phase-0p-two-track-foundation.md`](docs/04-phase-tutorials/phase-0p-two-track-foundation.md) | ✅ v0.2.0-alpha.1 |
-| 0.2 | 1 | R | Data: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, input QA gates, `segaudit sql` | `phase-01-data.md` | 🔜 |
+| 0.2 | 1 | R | Data: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, input QA gates, `segaudit sql` | `phase-01-data.md` | 🔨 code landed |
 | 0.2 | P1 | P | Data: public slide datasets + licence notes, WSI/tile I/O with mpp, tissue detection + tiling, slide-level artefact QC, QA gates, SQL over slide tables | `phase-p1-data.md` | 🔜 |
 | 0.2 | 2 | R | Preprocessing (reorient, resample, normalise, denoise) + classical baseline | `phase-02-preprocessing-baseline.md` | 🔜 |
 | 0.2 | P2 | P | Stain deconvolution / normalisation / augmentation + classical nuclei and tissue baselines | `phase-p2-stain-baselines.md` | 🔜 |
@@ -351,16 +351,22 @@ segaudit/
 │   ├── schemas.py                the column names both tracks agree on (cases/slides/tiles/cells + shared tables)
 │   ├── storage.py                Storage interface + local Parquet/DuckDB implementation
 │   ├── envcheck.py               "did the install work?" self-check, incl. slide readers
-│   ├── cli.py                    `segaudit info | check-env | config show | init | schemas | data phantom | slide info`
-│   ├── radiology/                Track R — filled by Phase 1 (NIfTI/DICOM I/O, MRI phantom, 3D model)
+│   ├── cli.py                    `segaudit info | check-env | config show | init | schemas | data … | sql | slide info`
+│   ├── radiology/                Track R
+│   │   ├── io_nifti.py           NIfTI I/O with geometry; volumes in ml
+│   │   ├── phantom_volume.py     synthetic MRI: two-label structure, failure modes, artefacts
+│   │   ├── qa.py                 input QA gates (refuse malformed scans and masks)
+│   │   ├── dataset.py            checksummed, resumable download; inventory → cases + qa_issues
+│   │   └── dicom.py              DICOM series → NIfTI with a de-identified summary
 │   └── pathology/                Track P
 │       ├── io_wsi.py             one SlideReader interface, OpenSlide + tiffslide backends, pyramid writer
 │       └── phantom_tiles.py      synthetic H&E tiles: patterns, failure modes, artefacts, tables, slides
-├── tests/                        73 checks on temporary folders; synthetic data only
+├── tests/                        102 checks on temporary folders; synthetic data only
 ├── scripts/
 │   ├── check_public_safe.py      pre-push guard: no secrets, data files or personal paths
 │   ├── freeze_lock.py            record the exact environment into locks/
 │   └── make_repo_snapshot.py     one Markdown file of every Git-tracked text file
+├── queries/                      documented multi-line SQL for `segaudit sql -f` (see queries/README.md)
 ├── locks/                        per-platform exact environment snapshots (see locks/README.md)
 ├── data/                         raw/ and processed/ — regenerated, never committed (see data/README.md)
 ├── outputs/  models/             tables, figures, weights — git-ignored
@@ -419,7 +425,9 @@ segaudit data phantom -c configs/quick-pathology.yaml                           
 segaudit slide info data/raw/synthetic_tiles/slides/synth_000.tif --backend openslide  # 2 levels, mpp 0.5, 20x
 segaudit slide info data/raw/synthetic_tiles/slides/synth_000.tif --backend tiffslide  # identical
 segaudit schemas cells                                                                  # what a cell row contains
-segaudit data phantom -c configs/quick.yaml       # radiology: "arrives with Phase 1" — on purpose, not silently
+segaudit data phantom -c configs/quick.yaml                                            # radiology: synthetic MRI volumes
+segaudit data inventory -c configs/quick.yaml                                          # cases + qa_issues tables
+segaudit sql -c configs/quick.yaml -f queries/volumes_by_case.sql                      # hippocampal volumes in ml
 ```
 
 **A note on Intel Macs.** PyTorch stopped building for Intel-based Macs at
@@ -429,8 +437,10 @@ conditions pip evaluates on your machine — so the same commands above install
 versions everywhere else. The slide reader ships as a universal binary and
 needs nothing special. Nothing to edit.
 
-The pipeline commands (`segaudit data download`, `train`, `audit`, `app`)
-arrive phase by phase; each tutorial adds its own command to this section.
+The real dataset: `segaudit data download -c configs/default.yaml` (≈27 MB,
+checksummed, resumable) then `segaudit data inventory -c configs/default.yaml`.
+The remaining pipeline commands (`train`, `audit`, `app`) arrive phase by
+phase; each tutorial adds its own command to this section.
 
 ## How I work on this repo (branch model)
 

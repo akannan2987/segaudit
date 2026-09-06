@@ -23,10 +23,23 @@ paths:
 data:
   source: synthetic_phantom
   use_synthetic: true
+  msd:
+    url: https://msd-for-monai.s3-us-west-2.amazonaws.com/Task04_Hippocampus.tar
+    md5: 9d24dba78a72977dbd1d2e110310f31b
+    archive: Task04_Hippocampus.tar
+    dirname: Task04_Hippocampus
   synthetic:
-    n_cases: 12
+    n_cases: 6
     shape: [32, 40, 32]
     voxel_size_mm: [1.0, 1.0, 1.0]
+
+qa:
+  spacing_min_mm: 0.2
+  spacing_max_mm: 5.0
+  min_shape: 8
+  max_shape: 1024
+  allowed_labels: [0, 1, 2]
+  min_foreground_voxels: 10
 
 pathology:
   mpp: 0.5

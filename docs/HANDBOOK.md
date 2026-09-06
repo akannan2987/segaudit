@@ -90,7 +90,7 @@ Two tracks, interleaved: R phases (scans) keep their numbers, P phases (slides) 
 |---|---|---|---|---|---|
 | 0.1.0 | 0 | S | Foundations before features: package, config, storage+SQL, CLI, tests, CI, safety guard | [`04-phase-tutorials/phase-00-skeleton.md`](04-phase-tutorials/phase-00-skeleton.md) | ✅ |
 | 0.2 | 0P | S | One core, two doors: `track` setting, table schemas, `radiology/` + `pathology/`, slide reader with two backends, synthetic H&E tiles | [`04-phase-tutorials/phase-0p-two-track-foundation.md`](04-phase-tutorials/phase-0p-two-track-foundation.md) | ✅ v0.2.0-alpha.1 |
-| 0.2 | 1 | R | Real scans in: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, QA gates, `segaudit sql` | `phase-01-data.md` | 🔜 |
+| 0.2 | 1 | R | Real scans in: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, QA gates, `segaudit sql` | `phase-01-data.md` | 🔨 code landed; tutorial next |
 | 0.2 | P1 | P | Real slides in: public datasets + licences, WSI/tile I/O with mpp, tissue detection + tiling, artefact QC, QA gates, SQL over slide tables | `phase-p1-data.md` | 🔜 |
 | 0.2 | 2 | R | Make scans comparable (reorient, resample, normalise, denoise); classical baseline | `phase-02-preprocessing-baseline.md` | 🔜 |
 | 0.2 | P2 | P | Make slides comparable (stain deconvolution, normalisation, augmentation); classical nuclei + tissue baselines | `phase-p2-stain-baselines.md` | 🔜 |

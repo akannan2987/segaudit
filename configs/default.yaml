@@ -30,8 +30,15 @@ paths:
   models: models                  # trained weights (Phase 3)
 
 data:
-  # The public dataset used for the core project. Downloaded in Phase 1.
+  # The public dataset used for the core project (Track R).
   source: msd_task04_hippocampus
+  msd:
+    # Medical Segmentation Decathlon, Task 04 (Hippocampus), CC-BY-SA 4.0.
+    # Public mirror and the MD5 the MONAI project publishes for the same file.
+    url: https://msd-for-monai.s3-us-west-2.amazonaws.com/Task04_Hippocampus.tar
+    md5: 9d24dba78a72977dbd1d2e110310f31b
+    archive: Task04_Hippocampus.tar
+    dirname: Task04_Hippocampus
   # Set to true to run entirely on the built-in synthetic phantom generator
   # (no download; used by the tests and the first walkthrough).
   use_synthetic: false
@@ -39,6 +46,14 @@ data:
     n_cases: 40
     shape: [40, 56, 40]           # voxels per axis — same ballpark as the real task
     voxel_size_mm: [1.0, 1.0, 1.0]
+
+qa:                                # input QA gates (Track R; see radiology/qa.py)
+  spacing_min_mm: 0.2
+  spacing_max_mm: 5.0
+  min_shape: 8
+  max_shape: 1024
+  allowed_labels: [0, 1, 2]
+  min_foreground_voxels: 10
 
 pathology:                         # Track P settings (ignored on Track R)
   mpp: 0.5                         # microns per pixel to work at (0.5 ≈ 20x)

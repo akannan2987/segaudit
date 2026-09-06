@@ -93,9 +93,9 @@ def test_schemas_command_lists_and_describes(capsys):
     assert main(["schemas", "nothing"]) == 2
 
 
-def test_data_phantom_radiology_reports_not_ready(capsys, config_file: Path):
-    assert main(["data", "phantom", "--config", str(config_file)]) == 3
-    assert "Phase 1" in capsys.readouterr().err
+def test_data_inventory_on_pathology_reports_not_ready(capsys, config_file: Path):
+    assert main(["data", "inventory", "--config", str(config_file), "--track", "pathology"]) == 3
+    assert "P1" in capsys.readouterr().err
 
 
 def test_data_phantom_then_slide_info_end_to_end(capsys, repo_root: Path, minimal_config: dict):

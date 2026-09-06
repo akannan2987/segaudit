@@ -71,6 +71,12 @@ jobs:
           segaudit slide info data/raw/synthetic_tiles/slides/synth_000.tif --backend openslide
           segaudit slide info data/raw/synthetic_tiles/slides/synth_000.tif --backend tiffslide
 
+      - name: Track R data door (synthetic phantom -> inventory -> SQL, no download)
+        run: |
+          segaudit data phantom -c configs/quick.yaml
+          segaudit data inventory -c configs/quick.yaml
+          segaudit sql -c configs/quick.yaml -f queries/cases_overview.sql
+
       - name: Tests
         run: pytest
 

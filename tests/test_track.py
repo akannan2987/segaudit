@@ -64,7 +64,11 @@ def test_shipped_configs_declare_their_track():
     assert load_config(here / "quick-pathology.yaml").track == "pathology"
 
 
-def test_generate_synthetic_on_radiology_is_explicitly_not_ready(config_file: Path):
-    cfg = load_config(config_file)  # radiology by default
-    with pytest.raises(NotImplementedError, match="Phase 1"):
-        api.generate_synthetic(cfg)
+def test_generate_synthetic_dispatches_on_track(config_file: Path):
+    cfg = load_config(config_file)  # radiology by default; minimal config -> generator defaults
+    api.initialise_workspace(cfg)
+    summary = api.generate_synthetic(cfg)
+    assert summary["n_cases"] == 12 and "synthetic_phantom" in summary["root"]
+    # Slide downloads and inventory are still Phase P1's, and say so explicitly.
+    with pytest.raises(NotImplementedError, match="P1"):
+        api.build_inventory(load_config(config_file, track="pathology"))
