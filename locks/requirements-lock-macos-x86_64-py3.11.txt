@@ -6,6 +6,7 @@
 # rebuild:   python -m pip install -r locks/requirements-lock-macos-x86_64-py3.11.txt
 #            (in a fresh venv on the SAME platform and Python minor version)
 --extra-index-url https://download.pytorch.org/whl/cpu
+certifi==2026.7.22
 cloudpickle==3.1.2
 donfig==0.8.1.post1
 duckdb==1.5.5

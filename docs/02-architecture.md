@@ -207,17 +207,21 @@ Phase 0 built the foundations only. Here is every file in `src/segaudit/` and wh
 | `envcheck.py` | Imports every dependency and reports versions and which phase needs it | Why "missing" is only alarming from that phase on |
 | `schemas.py` | The column names every table agrees on: `cases`, `slides`, `tiles`, `cells`, and the shared `case_metrics`, `qc_scores`, `review_ledger`, `runs` | Why one review app can serve both tracks |
 | `api.py` | `version`, `tracks`, `load`, `storage_for`, `initialise_workspace`, `generate_synthetic`, `slide_info` | Rule 2 made concrete — later phases add functions here and nowhere else; track-specific ones dispatch on `cfg.track` |
-| `radiology/` | Track R package — declares the track; Phase 1 fills it | Where scan-only code will live |
+| `radiology/io_nifti.py` | `Volume` (frozen), load/save with the affine, header-only reads, volumes in ml | Why the affine is the measurement |
+| `radiology/phantom_volume.py` | Synthetic T1-like volumes with a two-label structure, failure modes, artefacts | The scan crash-test dummy |
+| `radiology/qa.py` | Input QA gates with config-driven limits | QA (inputs) versus QC (outputs) |
+| `radiology/dataset.py` | Checksummed, resumable, idempotent download; safe extract; inventory → `cases` + `qa_issues` | Provenance in practice |
+| `radiology/dicom.py` | DICOM series → NIfTI; demo series writer | From a scanner into the pipeline |
 | `pathology/io_wsi.py` | One `SlideReader` interface, two backends (OpenSlide, tiffslide), a pyramid writer | How geometry (mpp, magnification, levels) is preserved, and why two readers |
 | `pathology/phantom_tiles.py` | Synthetic H&E tiles with labels, spatial patterns, failure modes, artefacts; tables and assembled slides | The pathology crash-test dummy |
-| `cli.py` | `segaudit info / check-env / config show / init / schemas / data phantom / slide info`, all with `--track` — each a few lines calling `api` | What "a thin door" looks like in practice |
+| `cli.py` | `segaudit info / check-env / config show / init / schemas / data … / sql / slide info`, all with `--track` — each a few lines calling `api` | What "a thin door" looks like in practice |
 
 And the files around the code:
 
 | File | Job |
 |---|---|
 | `configs/default.yaml`, `configs/quick.yaml`, `configs/quick-pathology.yaml` | The real run and the two-minute synthetic runs, one per track. Later phases add their sections here |
-| `tests/` | 73 checks that the modules keep their promises; run on a temporary folder with synthetic data so nothing real is ever touched or downloaded |
+| `tests/` | 103 checks that the modules keep their promises; run on a temporary folder with synthetic data so nothing real is ever touched or downloaded |
 | `scripts/check_public_safe.py` | Refuses the push if a secret, a data file or a personal path would be published |
 | `.github/workflows/ci.yml` | Runs lint, environment check, both slide readers on a synthetic slide, tests and the safety script on Windows, macOS and Linux for every push |
 
@@ -315,7 +319,7 @@ $ rm outputs/quick/tables/demo_cases.parquet        # Windows: del outputs\quick
 |---|---|---|
 | 0 | `04-phase-tutorials/phase-00-skeleton.md` | Foundations: api, config, storage, CLI, tests, CI |
 | 0P | `04-phase-tutorials/phase-0p-two-track-foundation.md` | Track setting, schemas, both subpackages, slide reader, synthetic tiles |
-| 1 / P1 | `phase-01-data.md` / `phase-p1-data.md` | Sources → `data/raw/`, phantoms, tiling, input QA, SQL console |
+| 1 / P1 | [`phase-01-data.md`](04-phase-tutorials/phase-01-data.md) / `phase-p1-data.md` | Sources → `data/raw/`, phantoms, tiling, input QA, SQL console |
 | 2 / P2 | `phase-02-preprocessing-baseline.md` / `phase-p2-stain-baselines.md` | `data/processed/` and tiles; classical baselines |
 | 3 / P3 | `phase-03-model.md` / `phase-p3-models.md` | 3D U-Net; nuclei + tissue models |
 | 4 / P4 | `phase-04-validation.md` / `phase-p4-validation-benchmark.md` | Validation; shared benchmark harness |

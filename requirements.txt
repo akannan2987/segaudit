@@ -32,6 +32,9 @@ duckdb==1.5.5
 # Configuration
 PyYAML==6.0.3
 
+# HTTPS root certificates for the dataset downloader (fresh python.org installs on macOS have none)
+certifi==2026.7.22
+
 # Medical image I/O and processing
 nibabel==5.4.2
 SimpleITK==2.5.6

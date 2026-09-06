@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import SimpleITK as sitk
 
 # Tags worth recording for provenance; none of them identify a person.
@@ -96,3 +97,52 @@ def convert_series(folder: str | Path, output: str | Path, series_id: str | None
         except RuntimeError:
             pass
     return summary
+
+
+def write_demo_series(folder: str | Path, n_slices: int = 12, spacing=(0.8, 0.8, 2.0), seed: int = 0) -> Path:
+    """Write a tiny **synthetic** DICOM series so the converter can be tried with no download.
+
+    Twelve 32x32 slices of a bright blob on noise, with the geometry tags a
+    scanner would write (pixel spacing, slice thickness, orientation, per-slice
+    position). Patient fields hold the word SYNTHETIC. Nothing about this is a
+    person or a scanner; it exists so ``segaudit data convert-dicom`` has an
+    input on every machine.
+    """
+    import pydicom  # noqa: PLC0415
+    from pydicom.dataset import FileDataset, FileMetaDataset  # noqa: PLC0415
+    from pydicom.uid import ExplicitVRLittleEndian, generate_uid  # noqa: PLC0415
+
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    rng = np.random.default_rng(seed)
+    study, series, frame = generate_uid(), generate_uid(), generate_uid()
+    yy, xx = np.mgrid[0:32, 0:32]
+    for i in range(n_slices):
+        blob = ((xx - 16) ** 2 + (yy - 16) ** 2) <= (6 + 4 * np.sin(i / n_slices * np.pi)) ** 2
+        pixels = (rng.integers(80, 140, (32, 32)) + 600 * blob).astype(np.uint16)
+        meta = FileMetaDataset()
+        meta.MediaStorageSOPClassUID = pydicom.uid.MRImageStorage
+        meta.MediaStorageSOPInstanceUID = generate_uid()
+        meta.TransferSyntaxUID = ExplicitVRLittleEndian
+        path = folder / f"slice_{i:03d}.dcm"
+        ds = FileDataset(str(path), {}, file_meta=meta, preamble=b"\0" * 128)
+        ds.SOPClassUID = meta.MediaStorageSOPClassUID
+        ds.SOPInstanceUID = meta.MediaStorageSOPInstanceUID
+        ds.StudyInstanceUID, ds.SeriesInstanceUID, ds.FrameOfReferenceUID = study, series, frame
+        ds.Modality = "MR"
+        ds.Manufacturer = "SegAudit synthetic"
+        ds.ManufacturerModelName = "demo-series"
+        ds.PatientName, ds.PatientID = "SYNTHETIC^DEMO", "SYNTHETIC"
+        ds.Rows = ds.Columns = 32
+        ds.PixelSpacing = [spacing[0], spacing[1]]
+        ds.SliceThickness = spacing[2]
+        ds.SpacingBetweenSlices = spacing[2]
+        ds.ImageOrientationPatient = [1, 0, 0, 0, 1, 0]
+        ds.ImagePositionPatient = [0, 0, i * spacing[2]]
+        ds.InstanceNumber = i + 1
+        ds.SamplesPerPixel, ds.PhotometricInterpretation = 1, "MONOCHROME2"
+        ds.BitsAllocated = ds.BitsStored = 16
+        ds.HighBit, ds.PixelRepresentation = 15, 0
+        ds.PixelData = pixels.tobytes()
+        ds.save_as(str(path), enforce_file_format=True)
+    return folder

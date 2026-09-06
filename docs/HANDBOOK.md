@@ -17,7 +17,7 @@
 | [0. Orient](#stage-0--orient) | You know what SegAudit is, why it matters, and the words to talk about it | 30–45 min | ✅ |
 | [1. Set up your machine](#stage-1--set-up-your-machine) | Every tool installed, once, with proof it works | ~45 min | ✅ |
 | [2. Understand the design](#stage-2--understand-the-design) | You can explain the architecture and use Git confidently | 1–2 h | ✅ |
-| [3. Build the pipeline, phase by phase](#stage-3--build-the-pipeline-phase-by-phase) | The working system on both tracks, built and understood step by step | ~14–17 weekends total | 🔨 Phases 0 and 0P ✅; the rest 🔜 |
+| [3. Build the pipeline, phase by phase](#stage-3--build-the-pipeline-phase-by-phase) | The working system on both tracks, built and understood step by step | ~14–17 weekends total | 🔨 Phases 0, 0P and 1 ✅; the rest 🔜 |
 | [4. Releases](#stage-4--releases) | Versioned, tagged, changelogged milestones | minutes per release | ✅ v0.1.0; v0.2.0-alpha.1 pre-release |
 | [5. From pipeline to product](#stage-5--from-pipeline-to-product) | The evaluated path to a hosted, usable product | reading: 1 h | ✅ both documents live |
 | [6. Contribute and extend](#stage-6--contribute-and-extend) | You can improve SegAudit and keep its promises intact | ongoing | ✅ rules written |
@@ -67,7 +67,7 @@ Optional, arrives with Phase 7: `01b-setup-r.md` — R, RStudio and `renv` for t
 
 **Exact environment rebuilds (lock files).** `requirements.txt` pins the packages we name; a *lock file* additionally pins everything they pull in. After a successful setup you can record your machine's exact environment with `python scripts/freeze_lock.py` — see [`../locks/README.md`](../locks/README.md) for what locks are for and when to use one instead of the requirements files.
 
-**You are done when** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` says `73 passed`, and `ruff check .` says `All checks passed!` — the checkpoint at the bottom of your guide.
+**You are done when** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` says `103 passed`, and `ruff check .` says `All checks passed!` — the checkpoint at the bottom of your guide.
 
 ## Stage 2 · Understand the design
 
@@ -90,7 +90,7 @@ Two tracks, interleaved: R phases (scans) keep their numbers, P phases (slides) 
 |---|---|---|---|---|---|
 | 0.1.0 | 0 | S | Foundations before features: package, config, storage+SQL, CLI, tests, CI, safety guard | [`04-phase-tutorials/phase-00-skeleton.md`](04-phase-tutorials/phase-00-skeleton.md) | ✅ |
 | 0.2 | 0P | S | One core, two doors: `track` setting, table schemas, `radiology/` + `pathology/`, slide reader with two backends, synthetic H&E tiles | [`04-phase-tutorials/phase-0p-two-track-foundation.md`](04-phase-tutorials/phase-0p-two-track-foundation.md) | ✅ v0.2.0-alpha.1 |
-| 0.2 | 1 | R | Real scans in: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, QA gates, `segaudit sql` | `phase-01-data.md` | 🔨 code landed; tutorial next |
+| 0.2 | 1 | R | Real scans in: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, QA gates, `segaudit sql` | [`04-phase-tutorials/phase-01-data.md`](04-phase-tutorials/phase-01-data.md) | ✅ |
 | 0.2 | P1 | P | Real slides in: public datasets + licences, WSI/tile I/O with mpp, tissue detection + tiling, artefact QC, QA gates, SQL over slide tables | `phase-p1-data.md` | 🔜 |
 | 0.2 | 2 | R | Make scans comparable (reorient, resample, normalise, denoise); classical baseline | `phase-02-preprocessing-baseline.md` | 🔜 |
 | 0.2 | P2 | P | Make slides comparable (stain deconvolution, normalisation, augmentation); classical nuclei + tissue baselines | `phase-p2-stain-baselines.md` | 🔜 |

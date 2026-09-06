@@ -4,7 +4,7 @@
 
 **Prerequisites:** a machine or virtual machine running Red Hat Enterprise Linux 8 (or a binary-compatible rebuild such as Rocky Linux 8 or AlmaLinux 8), a login, an internet connection (or an internal package mirror), and about 45 minutes. Root (`sudo`) access is needed for two `dnf` commands; if you do not have it, section 4 shows what to ask an administrator for and how to proceed without it. No prior knowledge of anything.
 **Learning goal:** after this page you will have every tool SegAudit needs installed, understand what each one is for, and be able to open the project and prove that it works — the same proof the automated tests use.
-**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `73 passed`, and `ruff check .` prints `All checks passed!`.
+**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `103 passed`, and `ruff check .` prints `All checks passed!`.
 
 RHEL 8 is common on institutional servers and VMs, often accessed over SSH with no graphical desktop. This page assumes a terminal only; VS Code is optional and covered as a remote editor.
 
@@ -280,6 +280,7 @@ pandas            ok       3.0.5       Phase 0
 pyarrow           ok       25.0.1      Phase 0
 duckdb            ok       1.5.5       Phase 0
 PyYAML            ok       6.0.3       Phase 0
+certifi           ok       2026.7.22   Phase 1
 nibabel           ok       5.4.2       Phase 1
 SimpleITK         ok       2.5.6       Phase 1
 pydicom           ok       3.0.2       Phase 1
@@ -306,7 +307,7 @@ The `glibc2.28` in the platform line is RHEL 8's C library — the reason the 3.
 ```
 (.venv) $ pytest
 .............................                                    [100%]
-73 passed in 8.91s
+103 passed in 8.91s
 ```
 
 **9c. The linter.**
@@ -405,7 +406,7 @@ report `ldd --version` so the guide can be corrected.
 You are done with setup when, with `(.venv)` showing:
 
 - `segaudit check-env` ends with **`All required packages import. You are ready.`**
-- `pytest` ends with **`73 passed`**
+- `pytest` ends with **`103 passed`**
 - `ruff check .` prints **`All checks passed!`**
 
 You will never repeat this page on this VM. From here, the daily loop in section 10 is all you need.

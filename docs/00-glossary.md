@@ -54,7 +54,15 @@
 
 **DICOM.** The standard file format that scanners produce: one file per slice, each stuffed with metadata (patient, scanner, date, settings). *A stack of index cards, one per slice, each with a long label on the back.*
 
-**Header.** The metadata block at the start of an image file: dimensions, voxel size, data type, affine. *The nutrition label on a packet.*
+**Header.** The metadata block at the start of an image file: dimensions, voxel size, data type, affine. SegAudit's inventory reads only headers to walk hundreds of scans in seconds. *The nutrition label on a packet.*
+
+**DICOM series.** All the slice files that together make one scan, sharing a series identifier; SimpleITK stacks them into one volume using the position tags each slice carries. *A stack of index cards with page numbers on the back, bound into one book.*
+
+**Bias field.** A smooth brightness gradient across an MRI caused by the scanner, not the anatomy; the phantom adds one so preprocessing has something to remove. *Uneven lighting across a photograph.*
+
+**Rician noise.** The kind of noise MRI magnitude images actually have — never negative, brighter in dark regions than plain Gaussian noise would be. The phantom uses it so its statistics resemble real scans. *Static that never dips below zero.*
+
+**Motion artefact / ghosting.** A faded, shifted copy of the anatomy caused by the patient moving during acquisition. One of the phantom's artefacts. *A double exposure.*
 
 **Metadata.** Data about the data: when it was acquired, on what scanner, with what settings, at what resolution. *The details on the back of a photograph — date, place, camera.*
 
@@ -218,6 +226,8 @@
 
 **Pin (pinned version).** Specifying an exact version, `numpy==1.26.4`, instead of "any numpy". Pins are what make an environment reproducible. *Ordering by part number, not "a screw".*
 
+**Root certificate.** The list of authorities a program trusts when checking that an HTTPS site is who it claims to be. A fresh python.org install on macOS has none until its `Install Certificates.command` is run; SegAudit's downloader carries its own list (`certifi`). *The passport office's list of recognised issuers.*
+
 **Python.** The programming language SegAudit is written in. Version 3.11 is used here.
 
 **PyPI.** The Python Package Index — the public catalogue pip downloads from.
@@ -251,6 +261,14 @@
 **Protocol / interface.** A description of *what* something must be able to do (write a table, read a table) without saying *how*. `Storage` is one; any class with the right methods qualifies. *A duty roster for a filing clerk, not the clerk's name.*
 
 **Seed (random seed).** The starting number for a random-number generator. Same seed → same "random" sequence → same result. Every SegAudit run takes its seed from the config. *Shuffling a deck the same way twice.*
+
+**Idempotent.** A command that is safe to run twice: the second run changes nothing and says so. `segaudit data download` and `data phantom` are idempotent, which is what lets a tutorial say "run this" without "unless you already did". *Pressing a lift button that is already lit.*
+
+**Checksum (MD5).** A short fingerprint computed from a file's bytes; change one byte and it changes completely. Comparing a download's checksum with the published one proves the file is complete and untampered. *The seal on a parcel.*
+
+**Path traversal.** An archive member named like `../../something` that would write outside the folder it is being unpacked into. SegAudit refuses such members before extracting. *A parcel addressed to a different house than the one it was delivered to.*
+
+**Runs ledger.** The `runs` table: one append-only row per command that wrote tables — id, track, command, config, seed, version, timestamp — so any result can be traced to what produced it. *The lab notebook's date-and-signature line.*
 
 **Storage (storage layer).** The one interface through which result tables are written and read. Today: Parquet files queried by DuckDB. Later: possibly a database server or cloud storage — the pipeline would not change. *The pantry.*
 

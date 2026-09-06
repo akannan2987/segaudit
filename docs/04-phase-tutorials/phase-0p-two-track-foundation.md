@@ -48,7 +48,7 @@ src/segaudit/
     ├── io_wsi.py             + SlideReader: OpenSlide + tiffslide backends, pyramid writer
     └── phantom_tiles.py      + synthetic H&E tiles: labels, patterns, failure modes, artefacts, slides
 configs/quick-pathology.yaml  + the two-minute pathology run
-tests/                        + 44 tests (73 total)
+tests/                        + 44 tests (73 at the time; 103 after Phase 1)
 .github/workflows/ci.yml      ~ reads a synthetic slide through both backends on all three runners
 ```
 

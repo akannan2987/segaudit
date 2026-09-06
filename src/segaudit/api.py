@@ -43,6 +43,7 @@ __all__ = [
     "build_inventory",
     "query",
     "convert_dicom_series",
+    "write_demo_dicom_series",
     "record_run",
     "slide_info",
 ]
@@ -143,6 +144,13 @@ def convert_dicom_series(folder: str | Path, output: str | Path, series_id: str 
     from segaudit.radiology import dicom  # noqa: PLC0415
 
     return dicom.convert_series(folder, output, series_id)
+
+
+def write_demo_dicom_series(folder: str | Path) -> Path:
+    """Write a tiny synthetic DICOM series (no download) to try the converter on."""
+    from segaudit.radiology import dicom  # noqa: PLC0415
+
+    return dicom.write_demo_series(folder)
 
 
 def record_run(cfg: Config, command: str, run_id: str | None = None) -> str:

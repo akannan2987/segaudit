@@ -4,7 +4,7 @@
 
 **Prerequisites:** a Mac (Intel or Apple silicon) running macOS 12 or newer, an administrator password, an internet connection, and about 45 minutes. No prior knowledge of anything.
 **Learning goal:** after this page you will have every tool SegAudit needs installed, understand what each one is for, and be able to open the project and prove that it works — the same proof the automated tests use.
-**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `73 passed`, and `ruff check .` prints `All checks passed!`.
+**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `103 passed`, and `ruff check .` prints `All checks passed!`.
 
 This page was written by running every command on a real Intel MacBook Pro (macOS 15) and pasting what appeared. Where Apple-silicon Macs differ, it says so.
 
@@ -112,7 +112,7 @@ macOS ships with a Python, but it is not the one we want: it is an old version a
 1. Open https://www.python.org/downloads/macos/ in a browser.
 2. Under **Python 3.11.x**, download the **macOS 64-bit universal2 installer** (works on Intel and Apple silicon).
 3. Open the downloaded `.pkg` and click through with the defaults.
-4. **Important, once:** when the installer finishes it opens a folder in Finder. Double-click **`Install Certificates.command`**. This lets Python download packages securely; skipping it causes the `SSL: CERTIFICATE_VERIFY_FAILED` error in troubleshooting.
+4. **Important, once — do not skip:** when the installer finishes it opens a folder in Finder. Double-click **`Install Certificates.command`** (or run `open "/Applications/Python 3.11/Install Certificates.command"` in the Terminal). A python.org Python ships with **no root certificates**, so until this runs it cannot verify *any* HTTPS site — the first symptom is `SSL: CERTIFICATE_VERIFY_FAILED` on the first download. SegAudit's own dataset downloader carries its certificate bundle (`certifi`) so it works regardless, but everything else — pip on some networks, other tools — needs this step.
 5. Close and reopen the Terminal (so it notices the new program), then verify:
 
 ```
@@ -297,6 +297,7 @@ pandas            ok       3.0.5       Phase 0
 pyarrow           ok       25.0.1      Phase 0
 duckdb            ok       1.5.5       Phase 0
 PyYAML            ok       6.0.3       Phase 0
+certifi           ok       2026.7.22   Phase 1
 nibabel           ok       5.4.2       Phase 1
 SimpleITK         ok       2.5.6       Phase 1
 pydicom           ok       3.0.2       Phase 1
@@ -323,10 +324,10 @@ Read it once: it tells you which phase first needs each package, so a missing on
 ```
 $ pytest
 .............................                                    [100%]
-73 passed in 10.73s
+103 passed in 10.73s
 ```
 
-Seventy-three dots, seventy-three small automated checks of the configuration loader, the storage layer, the command line, the table schemas, the slide reader and the synthetic tile generator, each passing. The time varies by machine.
+One hundred and three dots, one hundred and three small automated checks — configuration, storage, command line, table schemas, both synthetic generators, the slide reader, the scan reader, the QA gates, the download logic and the DICOM converter — each passing. The time varies by machine.
 
 **9c. The linter.**
 
@@ -396,8 +397,8 @@ Each entry: what you see → what it means → what to do.
 **T5. Prompt does not show `(.venv)` after `source .venv/bin/activate`.**
 *Means:* you are not in the project folder, or the venv was not created. *Do:* `pwd` to check the folder; `ls -a` should list `.venv`; if not, repeat step 7.
 
-**T6. `SSL: CERTIFICATE_VERIFY_FAILED` during any pip install.**
-*Means:* step 4's `Install Certificates.command` was skipped. *Do:* Finder → Applications → Python 3.11 → double-click **Install Certificates.command**, then retry.
+**T6. `SSL: CERTIFICATE_VERIFY_FAILED` during a pip install or a download.**
+*Means:* step 4's `Install Certificates.command` was skipped: your Python trusts no certificate authority yet. *Do:* `open "/Applications/Python 3.11/Install Certificates.command"`, wait for "update complete", then retry. (`segaudit data download` uses its own `certifi` bundle since Phase 1 and does not need this, but run it anyway — it fixes the machine, not just one command.)
 
 **T7. `error: externally-managed-environment`.**
 *Means:* you are installing into the Mac's own Python instead of the venv. *Do:* activate the venv (step 7) and use `python -m pip`.
@@ -434,7 +435,7 @@ tiffslide fallback (everything else works).
 You are done with setup when, with `(.venv)` showing:
 
 - `segaudit check-env` ends with **`All required packages import. You are ready.`**
-- `pytest` ends with **`73 passed`**
+- `pytest` ends with **`103 passed`**
 - `ruff check .` prints **`All checks passed!`**
 
 You will never repeat this page on this Mac. From here, the daily loop in section 10 is all you need.

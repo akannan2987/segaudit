@@ -200,8 +200,8 @@ called by a future web front end or cloud service without a rewrite — see
 
 | Track | Use | Dataset | Licence | Status |
 |---|---|---|---|---|
-| R | Segmentation, validation, UQ, QC, repeatability | **Medical Segmentation Decathlon Task 04 — Hippocampus**: 394 T1-weighted brain MRI volumes with expert outlines (263 with public labels), a research cohort of healthy adults and adults with a psychiatric diagnosis. Tiny volumes (≈35 × 50 × 35 voxels), so a 3D model trains on a laptop CPU in minutes; a genuinely hard target, so real failures exist to detect | CC-BY-SA 4.0 | Phase 1 |
-| R | Tests, CI, first walkthrough | **MRI phantom** — hippocampus-like ellipsoids in a noisy volume, failure modes on demand | synthetic | Phase 1 |
+| R | Segmentation, validation, UQ, QC, repeatability | **Medical Segmentation Decathlon Task 04 — Hippocampus**: T1-weighted brain MRI from a research cohort of healthy adults and adults with a psychiatric diagnosis; 260 labelled training volumes (labels: anterior, posterior) plus 130 unlabelled test volumes, all 1 mm isotropic. Tiny volumes (≈35 × 50 × 35 voxels), so a 3D model trains on a laptop CPU in minutes; a genuinely hard target, so real failures exist to detect. 28 MB, checksummed on download | CC-BY-SA 4.0 | ✅ downloaded + inventoried |
+| R | Tests, CI, first walkthrough | **MRI phantom** — a two-label hippocampus-shaped structure at low contrast in a noisy T1-like volume, five mask failure modes and four artefacts on demand, written in the public dataset's layout | synthetic | ✅ built |
 | P | Tissue semantic segmentation | **BCSS** — 151 breast-cancer regions from TCGA at 0.25 µm/px, 5 tissue classes | CC0 1.0 | Phase P1 |
 | P | Nuclei instance segmentation + classification | **PanNuke** — 256-px tiles, 19 tissue types, ~47 k nuclei, 5 classes | CC BY-NC-SA 4.0 — **non-commercial** | Phase P1 |
 | P | Nuclei, licence-clean alternative | **NuCLS** — 222 k nucleus annotations on the same TCGA images | CC0 1.0 | Phase P1 |
@@ -226,6 +226,13 @@ tracks side by side once both have results.*
   and read back through two independent slide readers (OpenSlide and
   tiffslide) with identical geometry — 4 levels, 0.5 µm/px, 20× — on all three
   operating systems; 73 tests pass.
+- **Phase 1 — data, Track R:** the public hippocampus dataset downloaded with
+  a matching published checksum (28.4 MB, 668 archive members) and inventoried
+  into **260 cases, 260 labelled, 0 input-QA errors**, all 1 mm isotropic, all
+  RAS — one SQL line establishes that. The seeded phantom gives volumes
+  identical to the digit on macOS with NumPy 1.26 and Linux with NumPy 2.4
+  (`phantom_001`: 0.865 / 0.369 ml) — the first measured proof of the
+  cross-lane reproducibility claim. 103 tests.
 
 ## Build log
 
@@ -237,7 +244,7 @@ demonstrated on both tracks.
 |---|---|---|---|---|---|
 | 0.1.0 | 0 | S | Skeleton: package, config, storage, CLI, tests, CI, docs scaffolding, branch model | [`phase-00-skeleton.md`](docs/04-phase-tutorials/phase-00-skeleton.md) | ✅ |
 | 0.2 | 0P | S | Two-track foundation: `track` setting, table schemas, `radiology/` + `pathology/`, whole-slide reader (OpenSlide + tiffslide), synthetic H&E tiles, `data phantom` / `slide info` | [`phase-0p-two-track-foundation.md`](docs/04-phase-tutorials/phase-0p-two-track-foundation.md) | ✅ v0.2.0-alpha.1 |
-| 0.2 | 1 | R | Data: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, input QA gates, `segaudit sql` | `phase-01-data.md` | 🔨 code landed |
+| 0.2 | 1 | R | Data: MSD download + inventory, MRI phantom, NIfTI/DICOM I/O with geometry, input QA gates, `segaudit sql` | [`phase-01-data.md`](docs/04-phase-tutorials/phase-01-data.md) | ✅ |
 | 0.2 | P1 | P | Data: public slide datasets + licence notes, WSI/tile I/O with mpp, tissue detection + tiling, slide-level artefact QC, QA gates, SQL over slide tables | `phase-p1-data.md` | 🔜 |
 | 0.2 | 2 | R | Preprocessing (reorient, resample, normalise, denoise) + classical baseline | `phase-02-preprocessing-baseline.md` | 🔜 |
 | 0.2 | P2 | P | Stain deconvolution / normalisation / augmentation + classical nuclei and tissue baselines | `phase-p2-stain-baselines.md` | 🔜 |
@@ -274,7 +281,7 @@ command with its expected output, and a checkpoint that tells you it worked.
    (`docs/01b-setup-r.md`, optional — R, RStudio and `renv` for the R companion — arrives with Phase 7.)
 3. [`docs/02-architecture.md`](docs/02-architecture.md) — how the pieces fit, what each box does, the two tracks and the six design rules.
 4. [`docs/03-git-workflow.md`](docs/03-git-workflow.md) — the branch model, the push sequence, and what to do when it goes wrong.
-5. [`docs/04-phase-tutorials/`](docs/04-phase-tutorials/) — one guide per build phase, starting with [`phase-00-skeleton.md`](docs/04-phase-tutorials/phase-00-skeleton.md) and [`phase-0p-two-track-foundation.md`](docs/04-phase-tutorials/phase-0p-two-track-foundation.md).
+5. [`docs/04-phase-tutorials/`](docs/04-phase-tutorials/) — one guide per build phase: [`phase-00-skeleton.md`](docs/04-phase-tutorials/phase-00-skeleton.md), [`phase-0p-two-track-foundation.md`](docs/04-phase-tutorials/phase-0p-two-track-foundation.md), [`phase-01-data.md`](docs/04-phase-tutorials/phase-01-data.md), …
 6. [`docs/05-roadmap.md`](docs/05-roadmap.md) — the interleaved two-track plan, the approach for each item, and its trigger.
 7. [`docs/06-product-and-technology-roadmap.md`](docs/06-product-and-technology-roadmap.md) — from this repository to a hosted product: every technology option evaluated with the same three questions, for volumes and for slides.
 
@@ -357,11 +364,11 @@ segaudit/
 │   │   ├── phantom_volume.py     synthetic MRI: two-label structure, failure modes, artefacts
 │   │   ├── qa.py                 input QA gates (refuse malformed scans and masks)
 │   │   ├── dataset.py            checksummed, resumable download; inventory → cases + qa_issues
-│   │   └── dicom.py              DICOM series → NIfTI with a de-identified summary
+│   │   └── dicom.py              DICOM series → NIfTI with a de-identified summary; demo series writer
 │   └── pathology/                Track P
 │       ├── io_wsi.py             one SlideReader interface, OpenSlide + tiffslide backends, pyramid writer
 │       └── phantom_tiles.py      synthetic H&E tiles: patterns, failure modes, artefacts, tables, slides
-├── tests/                        102 checks on temporary folders; synthetic data only
+├── tests/                        103 checks on temporary folders; synthetic data only
 ├── scripts/
 │   ├── check_public_safe.py      pre-push guard: no secrets, data files or personal paths
 │   ├── freeze_lock.py            record the exact environment into locks/
@@ -376,7 +383,7 @@ segaudit/
     ├── 01-setup-{windows,macos,rhel8}.md   blank machine → working environment, incl. the slide reader
     ├── 02-architecture.md        two doors, one core; the six design rules
     ├── 03-git-workflow.md        branch model and push sequence, with failure cases
-    ├── 04-phase-tutorials/       one guide per phase, in build order (phase-00, phase-0p, …)
+    ├── 04-phase-tutorials/       one guide per phase, in build order (phase-00, phase-0p, phase-01, …)
     ├── 05-roadmap.md             the interleaved two-track plan with approach and trigger
     ├── 06-product-and-technology-roadmap.md   MVP → hosted product, for volumes and slides
     └── img/                      figures (fig_*.svg), in pairs: a volume and a slide
@@ -437,8 +444,10 @@ conditions pip evaluates on your machine — so the same commands above install
 versions everywhere else. The slide reader ships as a universal binary and
 needs nothing special. Nothing to edit.
 
-The real dataset: `segaudit data download -c configs/default.yaml` (≈27 MB,
-checksummed, resumable) then `segaudit data inventory -c configs/default.yaml`.
+The real dataset: `segaudit data download -c configs/default.yaml` (28 MB,
+checksummed, resumable) then `segaudit data inventory -c configs/default.yaml`
+(260 cases, 0 QA errors expected). From a scanner instead:
+`segaudit data demo-dicom outputs/demo` then `segaudit data convert-dicom outputs/demo outputs/demo.nii.gz`.
 The remaining pipeline commands (`train`, `audit`, `app`) arrive phase by
 phase; each tutorial adds its own command to this section.
 

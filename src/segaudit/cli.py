@@ -15,6 +15,7 @@ Commands
 ``segaudit data download``            fetch, verify and extract the track's public dataset
 ``segaudit data inventory``           walk the dataset into its tables (cases + qa_issues)
 ``segaudit data convert-dicom``       stack a DICOM series into one NIfTI file
+``segaudit data demo-dicom FOLDER``   write a tiny synthetic DICOM series to try the converter on
 ``segaudit sql [SQL | -f FILE]``      read-only SQL over the run's tables; interactive if neither
 ``segaudit slide info PATH``          read a whole-slide image's geometry (setup check)
 
@@ -92,6 +93,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_dcm.add_argument("folder", type=Path, help="folder containing the DICOM slices")
     p_dcm.add_argument("output", type=Path, help="output .nii.gz path")
     p_dcm.add_argument("--series", default=None, help="series id if the folder holds several")
+    p_demo = data_sub.add_parser("demo-dicom", help="write a tiny synthetic DICOM series (no download)")
+    p_demo.add_argument("folder", type=Path, help="folder to create")
 
     p_sql = sub.add_parser("sql", help="read-only SQL over the run's tables")
     _add_config_args(p_sql)
@@ -252,6 +255,14 @@ def cmd_data_convert_dicom(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_data_demo_dicom(args: argparse.Namespace) -> int:
+    folder = api.write_demo_dicom_series(args.folder)
+    n = len(list(folder.glob("*.dcm")))
+    print(f"Wrote {n} synthetic DICOM slices to {folder}")
+    print(f"Next: segaudit data convert-dicom {folder} <output.nii.gz>")
+    return 0
+
+
 def cmd_sql(args: argparse.Namespace) -> int:
     import duckdb  # noqa: PLC0415
     import pandas as pd  # noqa: PLC0415
@@ -341,6 +352,8 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_data_inventory(args)
         if args.command == "data" and args.data_command == "convert-dicom":
             return cmd_data_convert_dicom(args)
+        if args.command == "data" and args.data_command == "demo-dicom":
+            return cmd_data_demo_dicom(args)
         if args.command == "sql":
             return cmd_sql(args)
         if args.command == "slide" and args.slide_command == "info":

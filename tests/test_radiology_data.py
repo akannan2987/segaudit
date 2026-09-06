@@ -297,51 +297,29 @@ def test_record_run_appends_to_runs(rad_cfg):
 # --- DICOM ------------------------------------------------------------------
 
 
-def _write_dicom_series(folder: Path, n_slices: int = 5, spacing=(0.7, 0.7, 2.5)) -> None:
-    """A tiny synthetic DICOM series written with pydicom (no real patient data)."""
-    import pydicom
-    from pydicom.dataset import FileDataset, FileMetaDataset
-    from pydicom.uid import ExplicitVRLittleEndian, generate_uid
-
-    folder.mkdir(parents=True, exist_ok=True)
-    study, series, frame = generate_uid(), generate_uid(), generate_uid()
-    rng = np.random.default_rng(0)
-    for i in range(n_slices):
-        meta = FileMetaDataset()
-        meta.MediaStorageSOPClassUID = pydicom.uid.MRImageStorage
-        meta.MediaStorageSOPInstanceUID = generate_uid()
-        meta.TransferSyntaxUID = ExplicitVRLittleEndian
-        ds = FileDataset(str(folder / f"slice_{i:03d}.dcm"), {}, file_meta=meta, preamble=b"\0" * 128)
-        ds.SOPClassUID = meta.MediaStorageSOPClassUID
-        ds.SOPInstanceUID = meta.MediaStorageSOPInstanceUID
-        ds.StudyInstanceUID, ds.SeriesInstanceUID, ds.FrameOfReferenceUID = study, series, frame
-        ds.Modality = "MR"
-        ds.Manufacturer = "SegAudit synthetic"
-        ds.PatientName, ds.PatientID = "SYNTHETIC^PHANTOM", "SYNTH000"
-        ds.Rows = ds.Columns = 16
-        ds.PixelSpacing = [spacing[0], spacing[1]]
-        ds.SliceThickness = spacing[2]
-        ds.ImageOrientationPatient = [1, 0, 0, 0, 1, 0]
-        ds.ImagePositionPatient = [0, 0, i * spacing[2]]
-        ds.InstanceNumber = i + 1
-        ds.SamplesPerPixel, ds.PhotometricInterpretation = 1, "MONOCHROME2"
-        ds.BitsAllocated = ds.BitsStored = 16
-        ds.HighBit, ds.PixelRepresentation = 15, 0
-        ds.PixelData = rng.integers(0, 1000, (16, 16), dtype=np.uint16).tobytes()
-        ds.save_as(str(folder / f"slice_{i:03d}.dcm"), enforce_file_format=True)
-
-
 def test_dicom_series_to_nifti_keeps_spacing_and_drops_identity(tmp_path: Path):
-    _write_dicom_series(tmp_path / "series", n_slices=5, spacing=(0.7, 0.7, 2.5))
+    from segaudit.radiology.dicom import write_demo_series
+
+    write_demo_series(tmp_path / "series", n_slices=5, spacing=(0.7, 0.7, 2.5))
     out = tmp_path / "out.nii.gz"
     summary = api.convert_dicom_series(tmp_path / "series", out)
-    assert summary["n_files"] == 5 and summary["size_voxels"] == [16, 16, 5]
+    assert summary["n_files"] == 5 and summary["size_voxels"] == [32, 32, 5]
     assert summary["spacing_mm"] == pytest.approx([0.7, 0.7, 2.5])
     assert summary["modality"] == "MR"
-    assert "SYNTH" not in " ".join(str(v) for v in summary.values())  # no patient fields
+    assert "SYNTHETIC^DEMO" not in " ".join(str(v) for v in summary.values())  # no patient fields
     vol = io_nifti.load_image(out)
-    assert vol.shape == (16, 16, 5)
+    assert vol.shape == (32, 32, 5)
     assert vol.spacing_mm == pytest.approx((0.7, 0.7, 2.5))
+
+
+def test_cli_demo_dicom_then_convert(capsys, tmp_path: Path):
+    from segaudit.cli import main
+
+    assert main(["data", "demo-dicom", str(tmp_path / "demo")]) == 0
+    assert "12 synthetic DICOM slices" in capsys.readouterr().out
+    assert main(["data", "convert-dicom", str(tmp_path / "demo"), str(tmp_path / "demo.nii.gz")]) == 0
+    out = capsys.readouterr().out
+    assert "n_files" in out and "12" in out and (tmp_path / "demo.nii.gz").exists()
 
 
 def test_dicom_errors_are_clear(tmp_path: Path):

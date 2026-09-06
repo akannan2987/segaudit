@@ -33,9 +33,21 @@ documentation improvement.
   pinned "radiology phantom not yet" now assert the delivered behaviour).
   *Track P:* unchanged; its downloads and inventory arrive with Phase P1 and
   say so explicitly.
+- **Phase 1 — data, Track R (documentation + hardening).** The Phase 1
+  tutorial written from a real run (28.4 MB download, published checksum
+  matched, 260 cases, 0 QA errors, 33 informational intensity warnings);
+  the downloader now verifies HTTPS with the `certifi` root bundle, so a
+  fresh python.org install on macOS works without the manual certificate
+  step (that step is nevertheless promoted to "do not skip" in the macOS
+  setup guide, with the real error message in troubleshooting);
+  `segaudit data demo-dicom` writes a synthetic DICOM series so the
+  converter is runnable without any download; `fig_qa_vs_qc.svg`; glossary
+  terms (DICOM series, bias field, Rician noise, motion artefact, root
+  certificate, idempotent, checksum, path traversal, runs ledger); README,
+  Handbook, roadmap, architecture and data notes updated. 103 tests.
 
-Next up: Phase 1 documentation (tutorial `phase-01-data.md`), then Phase P1
-(slides: data) → v0.2.0 — see [`docs/05-roadmap.md`](docs/05-roadmap.md).
+Next up: Phase P1 (slides: data) → then Phases 2/P2, 3/P3 → v0.2.0 — see
+[`docs/05-roadmap.md`](docs/05-roadmap.md).
 
 ## [0.2.0-alpha.1] — 2026-09-06 — pre-release
 

@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import ssl
 import tarfile
 import urllib.request
 from collections.abc import Callable
@@ -62,6 +63,23 @@ def _md5(path: Path, chunk: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+def _ssl_context() -> ssl.SSLContext:
+    """An HTTPS context that trusts the ``certifi`` root-certificate bundle.
+
+    Python installed from python.org on macOS ships with no root certificates
+    until a one-time script is run, and the first symptom is
+    ``CERTIFICATE_VERIFY_FAILED`` on the very first download. Using certifi's
+    bundle (a maintained copy of the browsers' trusted roots) makes the
+    download work on a fresh install on every platform.
+    """
+    try:
+        import certifi  # noqa: PLC0415
+
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:  # pragma: no cover — certifi is pinned, but stay safe
+        return ssl.create_default_context()
+
+
 def _fetch(url: str, target: Path, progress: Callable[[int, int], None] | None = None) -> None:
     """Stream ``url`` to ``target`` (a ``.part`` file first, renamed on success).
 
@@ -72,7 +90,7 @@ def _fetch(url: str, target: Path, progress: Callable[[int, int], None] | None =
     part = target.with_suffix(target.suffix + ".part")
     start = part.stat().st_size if part.exists() else 0
     req = urllib.request.Request(url, headers={"Range": f"bytes={start}-"} if start else {})
-    with urllib.request.urlopen(req) as resp:  # noqa: S310 — https URL from config
+    with urllib.request.urlopen(req, context=_ssl_context()) as resp:  # noqa: S310 — https URL from config
         status = getattr(resp, "status", 200)
         resumed = status == 206
         total = int(resp.headers.get("Content-Length") or 0) + (start if resumed else 0)

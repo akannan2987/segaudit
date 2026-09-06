@@ -34,6 +34,7 @@ DEPENDENCIES: tuple[Dependency, ...] = (
     Dependency("pyarrow", "pyarrow", "Phase 0"),
     Dependency("duckdb", "duckdb", "Phase 0"),
     Dependency("yaml", "PyYAML", "Phase 0"),
+    Dependency("certifi", "certifi", "Phase 1"),
     Dependency("nibabel", "nibabel", "Phase 1"),
     Dependency("SimpleITK", "SimpleITK", "Phase 1"),
     Dependency("pydicom", "pydicom", "Phase 1"),

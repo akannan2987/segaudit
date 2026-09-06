@@ -4,7 +4,7 @@
 
 **Prerequisites:** a PC running Windows 10 or 11 (64-bit), the ability to install programs (administrator rights, or an IT-approved software centre), an internet connection, and about 45 minutes. No prior knowledge of anything.
 **Learning goal:** after this page you will have every tool SegAudit needs installed, understand what each one is for, and be able to open the project and prove that it works — the same proof the automated tests use.
-**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `73 passed`, and `ruff check .` prints `All checks passed!`.
+**Checkpoint:** `segaudit check-env` ends with `All required packages import. You are ready.`, `pytest` ends with `103 passed`, and `ruff check .` prints `All checks passed!`.
 
 Everything on this page uses **PowerShell**, the modern Windows command line. If you have used the older *Command Prompt* (`cmd.exe`), PowerShell looks similar but is not identical; use PowerShell as written.
 
@@ -302,6 +302,7 @@ pandas            ok       3.0.5       Phase 0
 pyarrow           ok       25.0.1      Phase 0
 duckdb            ok       1.5.5       Phase 0
 PyYAML            ok       6.0.3       Phase 0
+certifi           ok       2026.7.22   Phase 1
 nibabel           ok       5.4.2       Phase 1
 SimpleITK         ok       2.5.6       Phase 1
 pydicom           ok       3.0.2       Phase 1
@@ -326,7 +327,7 @@ All required packages import. You are ready.
 ```
 (.venv) PS> pytest
 .............................                                    [100%]
-73 passed in 12.40s
+103 passed in 12.40s
 ```
 
 **9c. The linter.**
@@ -430,7 +431,7 @@ pure-Python reader.
 You are done with setup when, with `(.venv)` showing:
 
 - `segaudit check-env` ends with **`All required packages import. You are ready.`**
-- `pytest` ends with **`73 passed`**
+- `pytest` ends with **`103 passed`**
 - `ruff check .` prints **`All checks passed!`**
 
 You will never repeat this page on this PC. From here, the daily loop in section 10 is all you need.

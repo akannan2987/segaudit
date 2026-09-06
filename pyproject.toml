@@ -44,6 +44,7 @@ dependencies = [
     "pyarrow>=15",
     "duckdb>=1.1",
     "PyYAML>=6",
+    "certifi>=2024",
     "nibabel>=5.2",
     "SimpleITK>=2.3",
     "scikit-image>=0.22",

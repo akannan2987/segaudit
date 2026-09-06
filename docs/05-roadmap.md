@@ -16,7 +16,7 @@
 timeline
     title The road from foundation to 1.0 — both tracks at every step
     v0.1 : foundation (released)
-    v0.2 : 0P two-track foundation (pre-release) : R1 + P1 data : R2 + P2 baselines : R3 + P3 models
+    v0.2 : 0P two-track foundation (pre-release) : R1 data (done) : P1 data : R2 + P2 baselines : R3 + P3 models
     v0.3 : R4 validation : P4 benchmark harness (shared) : R5 uncertainty
     v0.4 : R6 quality control : P5 QC on slides (shared) : P6 foundation-model embeddings
     v0.5 : R7 + P10 repeatability (+R) : R8 biomarkers (+R) : P7 cell graphs : P8 spatial biomarkers
@@ -30,7 +30,7 @@ One phase per version step; each lands with its tutorial in `docs/04-phase-tutor
 | Ver. | Phase | Track | Approach, in one honest paragraph | Effort |
 |---|---|---|---|---|
 | 0.2 | 0P | S | ✅ Done. `track` in config/API/CLI (default radiology, so nothing broke), `schemas.py`, symmetric `radiology/` and `pathology/` packages, slide reader with two backends, synthetic H&E tile generator, CI reading a synthetic slide on all three runners | — |
-| 0.2 | 1 | R | Download the public hippocampus dataset (Medical Segmentation Decathlon Task 04, CC-BY-SA 4.0) with a resumable script; inventory every volume into the `cases` table (spacing, orientation, intensity stats) via nibabel/SimpleITK; MRI phantom generator (seeded ellipsoids + noise, deliberate failure modes) mirroring the tile generator; input QA gates that refuse malformed volumes; the `segaudit sql` read-only console and a `queries/` folder; a DICOM-series→NIfTI utility with pydicom | 2–3 |
+| 0.2 | 1 | R | ✅ Done. Checksummed, resumable, idempotent download of the public hippocampus dataset; inventory into `cases` + `qa_issues` (260 cases, 0 errors); MRI phantom with failure modes and artefacts; input QA gates from the `qa` config; `segaudit sql` console + `queries/`; DICOM series → NIfTI with a demo series; `runs` ledger | — |
 | 0.2 | P1 | P | Download scripts + licence notes for BCSS (CC0), PanNuke (CC BY-NC-SA, flagged) / NuCLS (CC0), and one CAMELYON16 slide (CC0); inventory into `slides`/`tiles` with mpp and magnification read from the file; tissue detection (Otsu on a low level) and tiling at a target mpp with tissue-fraction per tile; slide-level artefact QC (blur, folds, pen marks, background) using the generator's artefacts as the test bed; QA gates; `segaudit sql` over the slide tables; the end-to-end WSI demo with a stated ≤30-min CPU budget | 3 |
 | 0.2 | 2 | R | Reorient, resample to isotropic spacing, normalise intensity, optional denoising — each a config switch; classical baseline segmentation (threshold + morphology) scored like the model will be | 2 |
 | 0.2 | P2 | P | Stain deconvolution (Macenko; Vahadane-lite) and normalisation in NumPy, stain augmentation for training; classical nuclei baseline (deconvolution → threshold → watershed) and classical tissue baseline (colour + texture); both scored like the models will be | 2–3 |
