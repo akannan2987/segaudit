@@ -111,15 +111,15 @@ def write_parts(text: str, out: Path, max_bytes: int) -> list[Path]:
     buffer = sections[0]
     index = 1
     for section in sections[1:]:
-        candidate = buffer + "\n## `" + section
-        if len(candidate.encode("utf-8")) > max_bytes and buffer:
+        proposed = buffer + "\n## `" + section
+        if len(proposed.encode("utf-8")) > max_bytes and buffer:
             part = out.with_name(f"{out.stem}-part{index}{out.suffix}")
             part.write_text(buffer, encoding="utf-8")
             parts.append(part)
             index += 1
             buffer = f"# (continued, part {index})\n\n## `" + section
         else:
-            buffer = candidate
+            buffer = proposed
     part = out.with_name(f"{out.stem}-part{index}{out.suffix}")
     part.write_text(buffer, encoding="utf-8")
     parts.append(part)

@@ -172,6 +172,7 @@ number, the figure, and the one-paragraph plain-language meaning.*
 | Phase | What it delivers | Guide | Status |
 |---|---|---|---|
 | 0 | Skeleton: package, config, storage, CLI, tests, CI, docs scaffolding, branch model | [`phase-00-skeleton.md`](docs/04-phase-tutorials/phase-00-skeleton.md) | ✅ v0.1.0 |
+| 0P | Two-track foundation: `track` setting, table schemas, `radiology/` + `pathology/` subpackages, whole-slide reader (OpenSlide + tiffslide), synthetic H&E tile generator, `segaudit data phantom` / `slide info` | `phase-0p-two-track-foundation.md` | 🔨 code landed |
 | 1 | Data: public dataset download and inventory, synthetic phantom generator, NIfTI/DICOM I/O with geometry preserved, input QA gates, case metadata table, `segaudit sql` read-only console over the result tables | `phase-01-data.md` | 🔜 v0.2 |
 | 2 | Preprocessing (resample, reorient, normalise, denoise) and a classical baseline segmentation | `phase-02-preprocessing-baseline.md` | 🔜 v0.2 |
 | 3 | 3D U-Net training with MONAI on CPU; patient-level splits; seeded | `phase-03-model.md` | 🔜 v0.2 |

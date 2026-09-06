@@ -9,6 +9,26 @@ documentation improvement.
 ## [Unreleased]
 
 ### Added
+- **Two-track foundation (Phase 0P, code).** SegAudit now has two input doors
+  onto one shared core. *Shared:* a `track` setting (`radiology` | `pathology`,
+  default `radiology` so every earlier configuration keeps working), a
+  `--track` flag on every command, a table-schema registry (`schemas.py`)
+  fixing the column names both tracks write into shared tables
+  (`case_metrics`, `qc_scores`, `review_ledger`, `runs`), a `segaudit schemas`
+  command, and symmetric subpackages `segaudit/radiology/` and
+  `segaudit/pathology/`. *Track P (new):* whole-slide image reading through one
+  interface with two backends (OpenSlide via `openslide-bin`, `tiffslide` as the
+  pure-Python fallback) preserving microns-per-pixel, magnification and
+  pyramid levels; a pyramidal TIFF writer both backends read identically; a
+  synthetic H&E-like tile generator with nuclei instance and phenotype labels,
+  three spatial patterns (clustered, dispersed, infiltrating), four label
+  failure modes and four image artefacts; `segaudit data phantom` and
+  `segaudit slide info`; the `slides`, `tiles` and `cells` tables;
+  `configs/quick-pathology.yaml`. *Track R:* unchanged; its phantom arrives
+  with Phase 1 and the API says so explicitly. New dependencies pinned for
+  all platforms: `openslide-bin`, `openslide-python`, `tiffslide`,
+  `tifffile`, `Pillow`, `scipy`. CI reads a synthetic slide through both
+  backends on all three runners. 44 new tests (73 total).
 - Illustrations across the documentation: SVG figures (voxel/volume, Dice
   overlap, the mean-hides-failures problem, virtual-environment toolboxes) in
   `docs/img/`, plus Mermaid diagrams in the setup guides, architecture, Git

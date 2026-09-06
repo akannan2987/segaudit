@@ -40,6 +40,14 @@ scikit-image==0.26.0
 
 # Classical machine learning (quality-control classifier, Phase 6)
 scikit-learn==1.9.0
+scipy==1.17.1
+
+# Track P: whole-slide images and tiles (two-track foundation, Phase 0P)
+Pillow==12.3.0
+tifffile==2026.3.3
+openslide-bin==4.0.1.2          # OpenSlide binaries as a wheel: Linux glibc>=2.28, macOS 11+ (Intel and Apple silicon), Windows x64
+openslide-python==1.4.6         # finds openslide-bin automatically
+tiffslide==3.0.1                # pure-Python fallback reader for tiled TIFF / SVS
 
 # Deep learning for medical imaging (Phase 3 onward). Requires torch first.
 monai==1.6.0;   sys_platform != "darwin" or platform_machine != "x86_64"

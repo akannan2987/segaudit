@@ -8,6 +8,8 @@
 # give *fast* ones.
 # ---------------------------------------------------------------------------
 
+track: radiology
+
 project:
   name: segaudit
   run_label: quick
@@ -25,6 +27,19 @@ data:
     n_cases: 12
     shape: [32, 40, 32]
     voxel_size_mm: [1.0, 1.0, 1.0]
+
+pathology:
+  mpp: 0.5
+  tile_size: 128
+  magnification: 20
+  synthetic:
+    n_slides: 2
+    tiles_per_slide: 4
+    grid: 2
+    tile_size: 128
+    mpp: 0.5
+    magnification: 20
+    patterns: [clustered, infiltrating]
 
 reproducibility:
   seed: 7

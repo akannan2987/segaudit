@@ -67,3 +67,56 @@ def test_format_report_lists_missing_required_packages():
     ]
     text = format_report(results, system_summary())
     assert "Missing required packages: ghost" in text
+
+
+# --- two-track foundation ----------------------------------------------------
+
+
+def test_info_prints_track(capsys, config_file: Path):
+    main(["info", "--config", str(config_file)])
+    assert "track       radiology" in capsys.readouterr().out
+    main(["info", "--config", str(config_file), "--track", "pathology"])
+    assert "track       pathology" in capsys.readouterr().out
+
+
+def test_config_show_reports_track_override(capsys, config_file: Path):
+    main(["config", "show", "--config", str(config_file), "-t", "pathology"])
+    assert json.loads(capsys.readouterr().out)["track"] == "pathology"
+
+
+def test_schemas_command_lists_and_describes(capsys):
+    assert main(["schemas"]) == 0
+    out = capsys.readouterr().out
+    assert "slides" in out and "case_metrics" in out
+    assert main(["schemas", "cells"]) == 0
+    assert "class_name" in capsys.readouterr().out
+    assert main(["schemas", "nothing"]) == 2
+
+
+def test_data_phantom_radiology_reports_not_ready(capsys, config_file: Path):
+    assert main(["data", "phantom", "--config", str(config_file)]) == 3
+    assert "Phase 1" in capsys.readouterr().err
+
+
+def test_data_phantom_then_slide_info_end_to_end(capsys, repo_root: Path, minimal_config: dict):
+    import yaml
+
+    data = {
+        **minimal_config,
+        "track": "pathology",
+        "pathology": {"synthetic": {"n_slides": 1, "tiles_per_slide": 2, "grid": 2, "tile_size": 64}},
+    }
+    cfg_path = repo_root / "configs" / "p.yaml"
+    cfg_path.write_text(yaml.safe_dump(data), encoding="utf-8")
+
+    assert main(["data", "phantom", "--config", str(cfg_path)]) == 0
+    out = capsys.readouterr().out
+    assert "track 'pathology'" in out and "n_tiles" in out
+
+    slide = repo_root / "data" / "raw" / "synthetic_tiles" / "slides" / "synth_000.tif"
+    for backend in ("openslide", "tiffslide", "auto"):
+        assert main(["slide", "info", str(slide), "--backend", backend]) == 0
+        out = capsys.readouterr().out
+        assert "mpp (x, y)     0.5, 0.5" in out and "magnification  20" in out
+
+    assert main(["slide", "info", str(repo_root / "missing.svs")]) == 4

@@ -28,6 +28,12 @@ MINIMAL_CONFIG = {
 
 
 @pytest.fixture
+def minimal_config() -> dict:
+    """A fresh copy of the minimal config dict, for tests that vary one key."""
+    return {k: (dict(v) if isinstance(v, dict) else v) for k, v in MINIMAL_CONFIG.items()}
+
+
+@pytest.fixture
 def repo_root(tmp_path: Path) -> Path:
     """A temporary folder shaped like the repository root."""
     (tmp_path / "configs").mkdir()

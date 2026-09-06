@@ -83,6 +83,7 @@ Optional, arrives with Phase 7: `01b-setup-r.md` — R, RStudio and `renv` for t
 | Phase | One line: what and why | Tutorial | Status |
 |---|---|---|---|
 | 0 | Foundations before features: package, config, storage+SQL, CLI, tests, CI, safety guard — so nothing later is a loose script | [`04-phase-tutorials/phase-00-skeleton.md`](04-phase-tutorials/phase-00-skeleton.md) | ✅ |
+| 0P | Two-track foundation: one shared core, two input doors (scans and slides) — `track` setting, table schemas, slide reader with two backends, synthetic H&E tiles | `04-phase-tutorials/phase-0p-two-track-foundation.md` | 🔨 code landed; docs next |
 | 1 | Real data in: download + inventory the public MRI set, synthetic phantom fallback, NIfTI/DICOM I/O with geometry intact, input QA gates, the `segaudit sql` console | `phase-01-data.md` | 🔜 v0.2 |
 | 2 | Make scans comparable (reorient, resample, normalise, denoise) and set the classical baseline the model must beat | `phase-02-preprocessing-baseline.md` | 🔜 v0.2 |
 | 3 | Train the 3D U-Net on CPU, seeded, on patient-level splits — honestly scoreable | `phase-03-model.md` | 🔜 v0.2 |

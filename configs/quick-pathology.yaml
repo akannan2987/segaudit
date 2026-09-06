@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# configs/quick-pathology.yaml — the two-minute pathology run.
+#
+# Same idea as quick.yaml, on the other track: synthetic H&E-like tiles, tiny
+# numbers, no download. Used by tests, CI and the first pathology walkthrough.
+# `segaudit data phantom -c configs/quick-pathology.yaml` writes the tiles,
+# the assembled synthetic slides and the slides/tiles/cells tables.
+# ---------------------------------------------------------------------------
+
+track: pathology
+
+project:
+  name: segaudit
+  run_label: quick-pathology
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  outputs: outputs/quick-pathology
+  models: models/quick-pathology
+
+data:
+  source: synthetic_tiles
+  use_synthetic: true
+
+pathology:
+  mpp: 0.5
+  tile_size: 128
+  magnification: 20
+  synthetic:
+    n_slides: 2
+    tiles_per_slide: 4
+    grid: 2
+    tile_size: 128
+    mpp: 0.5
+    magnification: 20
+    patterns: [clustered, infiltrating]
+
+reproducibility:
+  seed: 7
+
+storage:
+  backend: local_parquet
+
+training:                          # Phase P3
+  epochs: 2
+  batch_size: 4
+  learning_rate: 0.001
+
+uncertainty:                       # Phase P5
+  tta_passes: 2
+  mc_dropout_passes: 4
+
+quality_control:                   # Phase P5
+  failure_dice_threshold: 0.70
+  review_budget_fraction: 0.25

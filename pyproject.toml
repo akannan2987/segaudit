@@ -16,12 +16,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "segaudit"
 version = "0.1.0"
-description = "Quality control and triage for medical image segmentation: know which segmentations you can trust."
+description = "Quality control and triage for medical image segmentation, on scans and slides: know which segmentations you can trust."
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Abhilash Kannan" }]
 requires-python = ">=3.10"
-keywords = ["medical-imaging", "segmentation", "quality-control", "uncertainty", "MONAI", "NIfTI"]
+keywords = ["medical-imaging", "digital-pathology", "segmentation", "quality-control", "uncertainty", "MONAI", "NIfTI", "whole-slide-image"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -51,6 +51,12 @@ dependencies = [
     "pydicom>=2.4",
     "torch>=2.2.2",
     "monai>=1.4",
+    "scipy>=1.11",
+    "Pillow>=10",
+    "tifffile>=2024.2",
+    "openslide-bin>=4.0",
+    "openslide-python>=1.4",
+    "tiffslide>=2.4",
 ]
 
 [project.optional-dependencies]

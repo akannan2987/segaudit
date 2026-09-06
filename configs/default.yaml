@@ -11,6 +11,12 @@
 # paths for whatever operating system you are on.
 # ---------------------------------------------------------------------------
 
+# Which input door this run uses: `radiology` (3D scans) or `pathology`
+# (2D slides). Everything after the door — uncertainty, quality control,
+# triage, repeatability, biomarkers — is shared and does not read this key.
+# `segaudit --track pathology ...` overrides it for one run.
+track: radiology
+
 project:
   name: segaudit
   # A run label appears in every output table so results from different
@@ -33,6 +39,19 @@ data:
     n_cases: 40
     shape: [40, 56, 40]           # voxels per axis — same ballpark as the real task
     voxel_size_mm: [1.0, 1.0, 1.0]
+
+pathology:                         # Track P settings (ignored on Track R)
+  mpp: 0.5                         # microns per pixel to work at (0.5 ≈ 20x)
+  tile_size: 256                   # tile edge in pixels
+  magnification: 20
+  synthetic:                       # the synthetic tile generator (no download)
+    n_slides: 3
+    tiles_per_slide: 9
+    grid: 3                        # tiles per side in each assembled slide
+    tile_size: 256
+    mpp: 0.5
+    magnification: 20
+    patterns: [clustered, dispersed, infiltrating]
 
 reproducibility:
   # One seed controls every source of randomness (splits, augmentation,

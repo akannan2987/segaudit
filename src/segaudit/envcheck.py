@@ -38,9 +38,15 @@ DEPENDENCIES: tuple[Dependency, ...] = (
     Dependency("SimpleITK", "SimpleITK", "Phase 1"),
     Dependency("pydicom", "pydicom", "Phase 1"),
     Dependency("skimage", "scikit-image", "Phase 2"),
+    Dependency("scipy", "scipy", "Phase 0P"),
     Dependency("sklearn", "scikit-learn", "Phase 6"),
     Dependency("torch", "torch", "Phase 3"),
     Dependency("monai", "monai", "Phase 3"),
+    Dependency("PIL", "Pillow", "Phase 0P"),
+    Dependency("tifffile", "tifffile", "Phase 0P"),
+    Dependency("openslide_bin", "openslide-bin", "Phase 0P"),
+    Dependency("openslide", "openslide-python", "Phase 0P"),
+    Dependency("tiffslide", "tiffslide", "Phase 0P"),
     Dependency("pytest", "pytest", "Phase 0 (dev)", optional=True),
     Dependency("ruff", "ruff", "Phase 0 (dev)", optional=True),
 )
@@ -100,14 +106,14 @@ def format_report(results: list[CheckResult], system: dict[str, str]) -> str:
     lines = ["SegAudit environment check", "=" * 27, ""]
     for key, value in system.items():
         lines.append(f"{key:<11} {value}")
-    lines += ["", f"{'package':<14}{'status':<9}{'version':<12}first needed", "-" * 55]
+    lines += ["", f"{'package':<18}{'status':<9}{'version':<12}first needed", "-" * 59]
     for r in results:
         status = "ok" if r.ok else ("missing" if r.dependency.optional else "MISSING")
         lines.append(
-            f"{r.dependency.dist:<14}{status:<9}{r.version:<12}{r.dependency.first_needed}"
+            f"{r.dependency.dist:<18}{status:<9}{r.version:<12}{r.dependency.first_needed}"
         )
         if not r.ok and r.detail:
-            lines.append(f"{'':<14}  -> {r.detail}")
+            lines.append(f"{'':<18}  -> {r.detail}")
     required_missing = [r for r in results if not r.ok and not r.dependency.optional]
     lines.append("")
     if required_missing:

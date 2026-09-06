@@ -3,8 +3,9 @@
 #
 # Every time code is pushed, GitHub rents three fresh machines — one Windows,
 # one macOS, one Linux — installs SegAudit exactly the way the setup guides
-# say to, runs the linter and the tests, and reports green or red. It is the
-# proof behind the "runs on Windows | macOS | Linux" claim in the README.
+# say to, runs the linter and the tests, reads a synthetic whole-slide image
+# through both slide backends, and reports green or red. It is the proof
+# behind the "runs on Windows | macOS | Linux" claim in the README.
 #
 # Everyday analogy: a driving test taken on three different cars every time
 # you change anything about how you drive.
@@ -63,6 +64,12 @@ jobs:
 
       - name: Environment check
         run: segaudit check-env
+
+      - name: Slide readers (both backends, synthetic pyramid, no download)
+        run: |
+          segaudit data phantom -c configs/quick-pathology.yaml
+          segaudit slide info data/raw/synthetic_tiles/slides/synth_000.tif --backend openslide
+          segaudit slide info data/raw/synthetic_tiles/slides/synth_000.tif --backend tiffslide
 
       - name: Tests
         run: pytest
